@@ -1,0 +1,6 @@
+# Root ignores (the app has its own .gitignore)
+.env
+.env.*
+!.env.example
+supabase/.temp/
+supabase/.branches/

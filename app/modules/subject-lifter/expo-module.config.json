@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["SubjectLifterModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.subjectlifter.SubjectLifterModule"]
+  }
+}

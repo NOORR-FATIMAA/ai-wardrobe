@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "Wardrobe AI",
+    "slug": "ai-wardrobe",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.example.aiwardrobe"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#F4EFE8",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.example.aiwardrobe"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-sqlite",
+      "expo-image",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos so you can add clothes to your digital wardrobe.",
+          "cameraPermission": "Allow $(PRODUCT_NAME) to use the camera so you can photograph your clothes."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your approximate location to check the weather for outfit suggestions."
+        }
+      ],
+      "expo-font",
+      "expo-sharing"
+    ],
+    "scheme": "aiwardrobe",
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

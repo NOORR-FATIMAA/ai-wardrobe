@@ -1,0 +1,11 @@
+# Keep LF line endings in the repository and in checkouts on every OS. The applied migrations are
+# pinned by SHA-256 in supabase/tests/privacy_test.ts, so a CRLF checkout would change their bytes.
+* text=auto eol=lf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ttf binary
+*.otf binary
