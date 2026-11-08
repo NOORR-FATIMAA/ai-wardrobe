@@ -269,7 +269,9 @@ powershell -NoProfile -File scripts/tests/deploy-backend.tests.ps1
 
 The functions call Google's Gemini API (`generateContent`) through the official `@google/genai` SDK, pinned to 2.31.0.
 
-- **Default model:** `gemini-3.8-flash`. Google's model page lists it as stable, with image input, structured outputs and thinking levels low/medium/high, and the pricing page lists a free tier for it.
+- **Default model:** `gemini-3.5-flash-lite` (checked November 2026). Google's model page lists it as stable and its fastest, most cost-effective current model, with image input, structured outputs and thinking levels minimal/low/medium/high. The pricing page lists a free tier and, on the paid tier, $0.30 per 1M input and $2.50 per 1M output tokens.
+  - Not `gemini-3.8-flash`: Google describes it as built for long agentic coding tasks, and on TEST simple stylist requests hit its 60-second deadline (`504 DEADLINE_EXCEEDED`). It also costs several times more.
+  - Not the 2.5 models: they're closed to new API users (`gemini-2.5-flash` returns 404).
 - **Changing the model:** set the `GEMINI_MODEL` secret; no code change is needed. Check that a replacement model supports image input and structured outputs.
 - **Thinking level:** `low` for tagging photos and `medium` for styling, gap analysis and chat. It's only sent to Gemini 3+ models.
 - **No automatic retries:** if Gemini rate-limits a request (likely on the free tier), the user gets a "busy, try again" message straight away.

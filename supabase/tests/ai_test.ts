@@ -97,7 +97,7 @@ Deno.test("image request: endpoint, key header, system prompt, image part, schem
 
   const req = requests.at(-1)!;
   assertEquals(req.method, "POST");
-  assert(req.url.pathname.endsWith("/models/gemini-3.8-flash:generateContent"), req.url.pathname);
+  assert(req.url.pathname.endsWith("/models/gemini-3.5-flash-lite:generateContent"), req.url.pathname);
   assertEquals(req.headers.get("x-goog-api-key"), FAKE_KEY);
   assert(!req.url.toString().includes(FAKE_KEY), "API key must not be in the URL");
 

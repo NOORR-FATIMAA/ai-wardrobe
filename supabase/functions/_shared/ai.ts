@@ -12,9 +12,12 @@ const RAW_API_KEY = Deno.env.get("GEMINI_API_KEY")?.trim();
 const API_KEY_MALFORMED = Boolean(RAW_API_KEY) && !/^[\x21-\x7E]+$/.test(RAW_API_KEY!);
 const API_KEY = API_KEY_MALFORMED ? undefined : RAW_API_KEY;
 
-// Override with `supabase secrets set GEMINI_MODEL=...`. Default verified in Google's model docs
-// (stable; image input, structured outputs, thinking levels low/medium/high).
-const MODEL = Deno.env.get("GEMINI_MODEL") || "gemini-3.8-flash";
+// Override with `supabase secrets set GEMINI_MODEL=...`. Default per Google's model docs (Nov 2026):
+// stable, Google's fastest and most cost-effective current model, with image input, structured
+// outputs and thinking levels minimal/low/medium/high. gemini-3.8-flash is built for long agentic
+// coding tasks and hit the 60 s deadline on simple stylist requests; the 2.5 models are closed to
+// new API users.
+const MODEL = Deno.env.get("GEMINI_MODEL") || "gemini-3.5-flash-lite";
 
 // Test hook: lets supabase/tests/ai_test.ts point the SDK at a local mock server. Leave unset in production.
 const BASE_URL = Deno.env.get("GEMINI_BASE_URL");

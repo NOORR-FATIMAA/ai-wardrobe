@@ -73,9 +73,7 @@ serve(async (req, body) => {
       `${STYLIST_RULES}\n\n${wardrobeContext(profile, wardrobe)}`,
       situationContext(forecast && `${input.day}: ${forecast}`, recentWears, input.local_date, feedback.text),
     ],
-    // Low thinking keeps the reply well inside the 60 s deadline; with medium, gemini-3.8-flash hit
-    // 504 DEADLINE_EXCEEDED on TEST even for a three-item wardrobe.
-    effort: "low",
+    effort: "medium",
     // Up to four outfits plus thinking fit well within this; it bounds a runaway answer's duration.
     maxTokens: 8000,
     content: [textPart(prompt)],
