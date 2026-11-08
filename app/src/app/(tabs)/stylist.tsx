@@ -1,12 +1,14 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/Text';
 import { ItemThumb } from '@/components/ItemThumb';
 import { OutfitActions } from '@/components/OutfitActions';
 import { OutfitCard } from '@/components/OutfitCard';
 import { DIRECTIONS } from '@/components/PreferencesForm';
-import { Body, Button, Card, Chip, ChipGroup, EmptyState, ErrorText, Muted, Screen, TextField, Title } from '@/components/ui';
+import { StylistLoader } from '@/components/StylistLoader';
+import { Badge, Body, Button, Card, Chip, ChipGroup, EmptyState, ErrorText, FadeIn, Muted, Screen, TextField, Title } from '@/components/ui';
 import { DemoBanner } from '@/demo/DemoBanner';
 import { generateDemoOutfits } from '@/demo/demoStylist';
 import { api } from '@/lib/api';
@@ -135,6 +137,7 @@ export default function Stylist() {
       <DemoBanner />
       <View style={styles.header}>
         <View style={{ flex: 1, gap: space.xs }}>
+          <Badge label={demoActive ? 'Demo stylist' : 'AI stylist'} icon="sparkles" />
           <Title>Stylist</Title>
           <Muted>Where are you going? I’ll dress you from your own clothes.</Muted>
         </View>
@@ -206,6 +209,7 @@ export default function Stylist() {
             loading={busy}
             disabled={!ready}
           />
+          {busy ? <StylistLoader /> : null}
         </View>
       ) : (
         <Pressable
@@ -220,7 +224,8 @@ export default function Stylist() {
         </Pressable>
       )}
 
-      {result && !editing ? (
+      {result && !editing && busy ? <StylistLoader /> : null}
+      {result && !editing && !busy ? (
         <View style={{ gap: space.lg }}>
           {result.weather ? (
             <Muted>
@@ -228,11 +233,9 @@ export default function Stylist() {
             </Muted>
           ) : null}
           {result.outfits.map((outfit, index) => (
-            <OutfitCard
-              key={`${runId}-${index}`}
-              outfit={outfit}
-              actions={<OutfitActions outfit={outfit} requestText={request.trim() || occasion[0]} />}
-            />
+            <FadeIn key={`${runId}-${index}`} delay={index * 120}>
+              <OutfitCard glow outfit={outfit} actions={<OutfitActions outfit={outfit} requestText={request.trim() || occasion[0]} />} />
+            </FadeIn>
           ))}
           {result.wardrobe_note ? (
             <Card style={{ backgroundColor: colors.accentSoft }}>

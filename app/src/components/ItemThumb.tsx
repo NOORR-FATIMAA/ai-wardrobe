@@ -34,7 +34,7 @@ export function ItemThumb({
 
   return (
     <View
-      style={[box, { borderRadius: radius.md, overflow: 'hidden', backgroundColor: colors.surfaceAlt }]}
+      style={[box, { borderRadius: radius.md, overflow: 'hidden', backgroundColor: uri || illustration ? colors.photoTile : colors.surfaceAlt }]}
       accessibilityLabel={item.name}
       accessible
     >

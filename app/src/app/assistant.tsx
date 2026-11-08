@@ -1,7 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Stack } from 'expo-router';
 import { useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Text } from '@/components/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { OutfitActions } from '@/components/OutfitActions';
 import { OutfitCard } from '@/components/OutfitCard';
@@ -11,7 +12,7 @@ import { getConversation, storeConversation } from '@/lib/chatStore';
 import { useAppData } from '@/lib/data';
 import { approximateLocation } from '@/lib/outfits';
 import { supabase } from '@/lib/supabase';
-import { radius, space, useTheme } from '@/lib/theme';
+import { radius, space, useTheme, fonts } from '@/lib/theme';
 import type { AssistantTurn, ShoppingIdea } from '@/lib/types';
 
 const STARTERS = [
@@ -158,7 +159,7 @@ export default function Assistant() {
           multiline
           maxLength={1000}
           accessibilityLabel="Message"
-          style={[styles.input, { color: colors.text, backgroundColor: colors.background, borderColor: colors.border }]}
+          style={[styles.input, { color: colors.text, backgroundColor: colors.background, borderColor: colors.border, fontFamily: fonts.regular }]}
         />
         <Pressable
           onPress={() => send(draft)}

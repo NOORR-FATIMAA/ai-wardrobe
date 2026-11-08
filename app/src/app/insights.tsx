@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useMemo, type ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/Text';
 import { ItemThumb } from '@/components/ItemThumb';
 import { Body, Button, Card, EmptyState, Heading, Muted, Screen } from '@/components/ui';
 import { DemoBanner } from '@/demo/DemoBanner';

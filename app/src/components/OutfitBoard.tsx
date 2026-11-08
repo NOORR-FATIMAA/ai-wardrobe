@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/Text';
 import { radius, space, useTheme } from '@/lib/theme';
 import type { MissingItem, WardrobeItem } from '@/lib/types';
 import { ItemThumb } from './ItemThumb';
@@ -57,7 +58,7 @@ export function OutfitBoard({ items, missing = [] }: { items: WardrobeItem[]; mi
       <View style={[styles.column, { flex: hasSide ? 1.6 : 1 }]}>
         {main.map(({ item, weight }) => (
           <Pressable key={item.id} onPress={() => open(item)} style={{ flex: weight }} accessibilityLabel={`Open ${item.name}`}>
-            <View style={[styles.tile, { backgroundColor: colors.surface }]}>
+            <View style={[styles.tile, { backgroundColor: colors.boardTile }]}>
               <ItemThumb item={item} fill fit="contain" />
             </View>
           </Pressable>
@@ -67,7 +68,7 @@ export function OutfitBoard({ items, missing = [] }: { items: WardrobeItem[]; mi
         <View style={[styles.column, { flex: 1 }]}>
           {side.map((item) => (
             <Pressable key={item.id} onPress={() => open(item)} style={{ flex: 1 }} accessibilityLabel={`Open ${item.name}`}>
-              <View style={[styles.tile, { backgroundColor: colors.surface }]}>
+              <View style={[styles.tile, { backgroundColor: colors.boardTile }]}>
                 <ItemThumb item={item} fill fit="contain" />
               </View>
             </Pressable>

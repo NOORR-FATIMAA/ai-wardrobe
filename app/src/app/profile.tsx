@@ -1,13 +1,14 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Platform, Pressable, Text, View } from 'react-native';
-import { Body, Button, Card, ErrorText, Heading, Muted, Screen, Title, Toggle } from '@/components/ui';
+import { Alert, Platform, Pressable, View } from 'react-native';
+import { Text } from '@/components/Text';
+import { Body, Button, Card, ErrorText, Heading, Muted, Screen, Segmented, Title, Toggle, toneColors, type Tone } from '@/components/ui';
 import { api } from '@/lib/api';
 import { useAppData } from '@/lib/data';
 import { removeUserFolder } from '@/lib/storageCleanup';
 import { supabase } from '@/lib/supabase';
-import { space, useTheme } from '@/lib/theme';
+import { fonts, radius, space, useTheme, type ThemePreference } from '@/lib/theme';
 
 function confirm(title: string, message: string, onConfirm: () => void) {
   if (Platform.OS === 'web') {
@@ -22,6 +23,8 @@ function confirm(title: string, message: string, onConfirm: () => void) {
 
 export default function Profile() {
   const { session, profile, items, updateProfile, refreshItems } = useAppData();
+  const { colors, preference, setPreference } = useTheme();
+  const initial = (profile?.display_name?.trim()[0] ?? session?.user.email?.[0] ?? '').toUpperCase();
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,21 +78,39 @@ export default function Profile() {
 
   return (
     <Screen edges={['bottom']}>
-      <View style={{ gap: space.xs }}>
-        <Title>{profile?.display_name || 'Your account'}</Title>
-        <Muted>{session?.user.email}</Muted>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.lg }}>
+        <View style={{ width: 64, height: 64, borderRadius: radius.pill, backgroundColor: colors.butter, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontFamily: fonts.display, fontSize: 26, color: colors.onPastel }}>{initial || '?'}</Text>
+        </View>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Title>{profile?.display_name || 'Your account'}</Title>
+          <Muted>{session?.user.email}</Muted>
+        </View>
       </View>
 
+      <Heading>Your style</Heading>
       <Card>
-        <Row icon="heart-outline" label="Saved outfits" onPress={() => router.push('/outfits')} />
-        <Row icon="calendar-outline" label="Outfit calendar" hint="Planned looks and what you wore" onPress={() => router.push('/calendar')} />
-        <Row icon="stats-chart-outline" label="Wardrobe insights" hint="Cost per wear, pieces you never wear" onPress={() => router.push('/insights')} />
+        <Row icon="heart-outline" tone="coral" label="Saved outfits" hint="Your lookbook" onPress={() => router.push('/outfits')} />
+        <Row icon="calendar-outline" tone="mint" label="Outfit calendar" hint="Planned looks and what you wore" onPress={() => router.push('/calendar')} />
+        <Row icon="stats-chart-outline" tone="butter" label="Wardrobe insights" hint="Cost per wear, pieces you never wear" onPress={() => router.push('/insights')} />
         <Row icon="chatbubbles-outline" label="Stylist chat" hint="Ask anything about your wardrobe" onPress={() => router.push('/assistant')} />
+        <Row icon="color-palette-outline" tone="coral" label="Style profile" hint="Who to dress, region, styles, colours, sizes" onPress={() => router.push('/preferences')} />
+        <Row icon="body-outline" tone="mint" label="3D avatar" hint="Coming soon" onPress={() => router.push('/avatar')} />
       </Card>
 
+      <Heading>Appearance</Heading>
       <Card>
-        <Row icon="color-palette-outline" label="Style profile" hint="Styles, colours, occasions, sizes" onPress={() => router.push('/preferences')} />
-        <Row icon="body-outline" label="3D avatar" hint="Coming soon" onPress={() => router.push('/avatar')} />
+        <Muted>Theme on this device.</Muted>
+        <Segmented<ThemePreference>
+          label="Theme"
+          value={preference}
+          onChange={setPreference}
+          options={[
+            { value: 'system', label: 'System', icon: 'contrast-outline' },
+            { value: 'light', label: 'Light', icon: 'sunny-outline' },
+            { value: 'dark', label: 'Dark', icon: 'moon-outline' },
+          ]}
+        />
       </Card>
 
       <Heading>Privacy & data</Heading>
@@ -112,6 +133,7 @@ export default function Profile() {
         </Muted>
       </Card>
 
+      <Heading>Account</Heading>
       <ErrorText message={error} />
       <Button variant="secondary" icon="log-out-outline" title="Sign out" onPress={() => supabase.auth.signOut()} />
       <Button
@@ -127,11 +149,39 @@ export default function Profile() {
   );
 }
 
-function Row({ icon, label, hint, onPress }: { icon: React.ComponentProps<typeof Ionicons>['name']; label: string; hint?: string; onPress: () => void }) {
+function Row({
+  icon,
+  label,
+  hint,
+  onPress,
+  tone = 'lavender',
+}: {
+  icon: React.ComponentProps<typeof Ionicons>['name'];
+  label: string;
+  hint?: string;
+  onPress: () => void;
+  tone?: Tone;
+}) {
   const { colors } = useTheme();
+  const t = toneColors(colors, tone);
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" style={{ flexDirection: 'row', alignItems: 'center', gap: space.md, minHeight: 44 }}>
-      <Ionicons name={icon} size={22} color={colors.accent} />
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      style={({ hovered }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space.md,
+        minHeight: 52,
+        marginHorizontal: -space.sm,
+        paddingHorizontal: space.sm,
+        borderRadius: radius.md,
+        backgroundColor: hovered ? colors.surfaceAlt : 'transparent',
+      })}
+    >
+      <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: t.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <Ionicons name={icon} size={19} color={tone === 'lavender' ? colors.accent : colors.text} />
+      </View>
       <View style={{ flex: 1 }}>
         <Text style={{ color: colors.text, fontSize: 16, fontWeight: '500' }}>{label}</Text>
         {hint ? <Muted>{hint}</Muted> : null}

@@ -1,14 +1,17 @@
+import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, View } from 'react-native';
 import { AppDataProvider, useAppData } from '@/lib/data';
-import { useTheme } from '@/lib/theme';
+import { fontFiles, ThemeProvider, useTheme } from '@/lib/theme';
 
 function RootNavigator() {
   const { session, profile, loading, demoActive } = useAppData();
   const { colors } = useTheme();
+  // The bundled fonts (Inter, Space Grotesk). A font that fails to load falls back to the system font.
+  const [fontsLoaded, fontError] = useFonts(fontFiles);
 
-  if (loading) {
+  if (loading || (!fontsLoaded && !fontError)) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
         <ActivityIndicator color={colors.accent} />
@@ -22,12 +25,13 @@ function RootNavigator() {
 
   return (
     <>
-      <StatusBar style="dark" />
+      <StatusBar style={colors.scheme === 'dark' ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
           headerShadowVisible: false,
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
+          headerTitleStyle: { fontFamily: 'SpaceGrotesk_600SemiBold' },
           contentStyle: { backgroundColor: colors.background },
         }}
       >
@@ -61,8 +65,10 @@ function RootNavigator() {
 
 export default function RootLayout() {
   return (
-    <AppDataProvider>
-      <RootNavigator />
-    </AppDataProvider>
+    <ThemeProvider>
+      <AppDataProvider>
+        <RootNavigator />
+      </AppDataProvider>
+    </ThemeProvider>
   );
 }

@@ -1,150 +1,360 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Wardrobe AI: outfits from the clothes you own</title>
-  <meta name="description" content="Photograph your clothes, get outfits for any occasion from what you already own, and shop only for what you actually need.">
-  <meta property="og:title" content="Wardrobe AI">
-  <meta property="og:description" content="Outfits for every occasion, from the clothes you already own.">
-  <meta property="og:image" content="assets/screen-home.png">
-  <meta name="theme-color" content="#FAF6F1">
+  <title>Wardrobe AI: your style, your rules</title>
+  <meta name="description" content="Your personal AI fashion stylist. Organise your wardrobe, discover new combinations and find the perfect outfit for every occasion, from the clothes you already own.">
+  <meta property="og:title" content="Wardrobe AI: your style, your rules">
+  <meta property="og:description" content="Your personal AI stylist for the clothes you already own.">
+  <meta property="og:image" content="assets/screen-desktop.png">
+  <meta name="theme-color" content="#F8F7FC">
+  <!-- Theme before first paint (no flash): the saved choice, shared with the web app, else the system. -->
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('wardrobe.theme'); } catch (e) {}
+      if (t !== 'light' && t !== 'dark') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.dataset.theme = t;
+      document.documentElement.classList.remove('no-js');
+    })();
+  </script>
   <link rel="icon" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body id="top">
+  <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="wrap">
-      <a class="brand" href="./"><img src="assets/mark.svg" alt="">Wardrobe AI</a>
-      <nav class="nav" aria-label="Main">
-        <a class="hide-sm" href="#features">Features</a>
-        <a class="hide-sm" href="#privacy">Privacy</a>
-        <a class="hide-sm" href="#faq">FAQ</a>
-        <a class="btn btn-primary" href="app/">Open the app</a>
-      </nav>
+      <a class="brand" href="#top"><img src="assets/mark.svg" alt="">Wardrobe AI</a>
+      <div class="header-tools">
+        <nav class="nav" id="site-nav" aria-label="Main">
+          <a href="#top">Home</a>
+          <a href="#features">Features</a>
+          <a href="#how">How it works</a>
+          <a href="#about">About</a>
+          <a href="app/sign-in">Sign in</a>
+          <a class="btn btn-primary" href="app/sign-in?mode=sign-up">Get started</a>
+        </nav>
+        <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch theme">
+          <svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
+        <button class="icon-btn menu-btn" type="button" data-menu-toggle aria-controls="site-nav" aria-expanded="false" aria-label="Menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+        </button>
+      </div>
     </div>
   </header>
 
-  <main>
+  <main id="main">
+    <!-- Hero -->
     <section class="hero">
+      <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
       <div class="wrap">
-        <div>
-          <p class="eyebrow">Your personal stylist</p>
-          <h1>Your wardrobe, thoughtfully styled.</h1>
-          <p class="lead">Photograph the clothes you own, get outfits for every occasion, and shop only for what you actually need.</p>
+        <div class="reveal">
+          <span class="eyebrow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2z"/></svg>
+            Your personal AI stylist
+          </span>
+          <h1>Your style.<br><span class="hl">Your rules.</span></h1>
+          <p class="lead">Your personal AI fashion stylist. Organise your wardrobe, discover new combinations and find the perfect outfit for every occasion.</p>
           <div class="actions">
-            <a class="btn btn-primary" href="app/">Open the web app</a>
-            <a class="btn btn-secondary" href="app/">Try the demo, no account</a>
+            <a class="btn btn-primary" href="app/sign-in?mode=sign-up">
+              Build my wardrobe
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a class="btn btn-secondary" href="#features">Explore features</a>
           </div>
-          <p class="note muted">Free while in early access. iPhone and Android apps are coming soon.</p>
+          <p class="note muted">Free during early access. Just looking? <a href="app/">Try the demo</a>, no account needed.</p>
         </div>
-        <div class="phone"><img src="assets/screen-home.png" alt="Wardrobe AI home screen: ask your stylist, quick occasion picks and a preview of your wardrobe" width="390" height="844"></div>
+
+        <!-- Built from the app's own interface pieces and demo wardrobe illustrations. -->
+        <div class="stage reveal" aria-label="Preview of the app: an AI outfit suggestion, an outfit board, a wardrobe stat and part of the wardrobe">
+          <div class="mock ai-card float-a">
+            <span class="ai-badge"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2z"/></svg>AI stylist</span>
+            <div class="chips">
+              <span class="chip on">University</span><span class="chip">Desi</span><span class="chip on">Smart casual</span>
+            </div>
+            <p>“The camel coat lifts the navy and denim, and the white sneakers keep it easy for a long day.”</p>
+          </div>
+          <div class="mock board-card float-b">
+            <div class="mock-eyebrow">University</div>
+            <div class="mock-title">Camel coat + Dark-wash jeans</div>
+            <div class="board">
+              <div class="col">
+                <div class="tile t-tall"><img src="assets/garments/tee.png" alt="Navy crew-neck tee"></div>
+                <div class="tile t-mid"><img src="assets/garments/jeans.png" alt="Dark-wash jeans"></div>
+              </div>
+              <div class="col">
+                <div class="tile t-tall"><img src="assets/garments/coat.png" alt="Camel wool coat"></div>
+                <div class="tile t-short"><img src="assets/garments/sneakers.png" alt="White leather sneakers"></div>
+              </div>
+            </div>
+          </div>
+          <div class="mock stat-card float-c">
+            <div class="stat-icon" style="background: var(--mint)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
+            <div class="stat-value">44%</div>
+            <div class="stat-label">of your wardrobe worn in the last 90 days</div>
+          </div>
+          <div class="mock closet-card float-a">
+            <div class="mock-row">Your wardrobe <span>16 pieces</span></div>
+            <div class="mini-grid">
+              <div class="tile"><img src="assets/garments/shirt.png" alt=""></div>
+              <div class="tile"><img src="assets/garments/dress.png" alt=""></div>
+              <div class="tile"><img src="assets/garments/loafers.png" alt=""></div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section id="features" class="alt">
+    <!-- Features -->
+    <section id="features" class="band">
       <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow">What it does</p>
-          <h2>Get more out of the clothes you already have</h2>
-          <p class="muted">Most of us wear a fraction of our wardrobe. Wardrobe AI helps you rediscover the rest.</p>
+        <div class="section-head reveal">
+          <span class="eyebrow">Features</span>
+          <h2>Everything your wardrobe was missing</h2>
+          <p class="muted">Most of us wear a fraction of what we own. Wardrobe AI helps you see it, style it and actually wear it.</p>
         </div>
-        <div class="features">
-          <article class="card">
-            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></div>
-            <h3>Snap and it's tagged</h3>
-            <p>Take a photo and the AI recognises the category, colours, material, formality and seasons. You review everything before it's saved.</p>
-          </article>
-          <article class="card">
-            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.4L12 15l-1.8-4.6L5.5 9l4.7-1.4z"/><path d="M18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg></div>
-            <h3>An AI stylist for any occasion</h3>
-            <p>Pick an occasion or just describe it, like "smart but comfortable for a long day at university". Outfits use only clothes you own, and can take the weather into account.</p>
-          </article>
-          <article class="card">
-            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.4A8 8 0 1 1 21 12z"/></svg></div>
-            <h3>Chat about your style</h3>
-            <p>"What goes with my black trousers?" "Make the second one more casual." Ask follow-ups and the stylist adjusts.</p>
-          </article>
-          <article class="card">
-            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
-            <h3>Plan and track</h3>
-            <p>Plan looks for the next two weeks and tap "Wore it today". The stylist avoids repeating what you wore recently.</p>
-          </article>
-          <article class="card">
-            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v9H4v-9zM7 11l4-7a2 2 0 0 1 3 2l-1 4h6a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/></svg></div>
-            <h3>Learns your taste</h3>
-            <p>Thumbs up the looks you love and thumbs down the rest. The stylist leans towards what you like and never suggests a disliked combination again.</p>
-          </article>
-          <article class="card">
-            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
-            <h3>Wardrobe insights</h3>
-            <p>See your cost per wear, your hardest-working pieces, and the clothes you never reach for. Calculated on your device.</p>
-          </article>
-          <article class="card">
+
+        <div class="feature reveal">
+          <div>
+            <span class="tag lavender">Your digital closet</span>
+            <h3>Every piece, one tap away</h3>
+            <p>Photograph a piece of clothing and the AI recognises its category, colours, pattern, material, formality and seasons. You check everything before it’s saved.</p>
+            <ul>
+              <li>Search by colour, type or occasion; filter by category; sort by newest or most worn</li>
+              <li>On the iPhone and Android apps, backgrounds are removed on the device for a clean lookbook</li>
+            </ul>
+          </div>
+          <div class="visual lavender">
+            <div class="panel">
+              <div class="mock-row" style="margin-bottom: 10px">Wardrobe <span>13 pieces</span></div>
+              <div class="closet">
+                <div class="tile"><img src="assets/garments/shirt.png" alt="White oxford shirt"></div>
+                <div class="tile"><img src="assets/garments/sweater.png" alt="Grey merino sweater"></div>
+                <div class="tile"><img src="assets/garments/hoodie.png" alt="Black hoodie"></div>
+                <div class="tile"><img src="assets/garments/dress.png" alt="Black midi dress"></div>
+                <div class="tile"><img src="assets/garments/chinos.png" alt="Navy chinos"></div>
+                <div class="tile"><img src="assets/garments/denim-jacket.png" alt="Denim jacket"></div>
+                <div class="tile"><img src="assets/garments/loafers.png" alt="Brown leather loafers"></div>
+                <div class="tile"><img src="assets/garments/tote.png" alt="Canvas tote bag"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature reveal">
+          <div>
+            <span class="tag coral">AI personal stylist</span>
+            <h3>Ask like you’d ask a friend</h3>
+            <p>“What goes with my black trousers?” “Make the second one more casual.” Chat with a stylist that knows every piece you own, and refine looks as you go.</p>
+            <ul>
+              <li>Tell it who to dress (womenswear, menswear or both) and where you’re based</li>
+              <li>It learns from your thumbs up and down, and never repeats a look you disliked</li>
+            </ul>
+          </div>
+          <div class="visual coral">
+            <div class="panel chat">
+              <div class="bubble me">Something for my cousin’s mehndi tonight?</div>
+              <div class="bubble ai">Your mustard kurta with white shalwar and khussa. Add the green dupatta for colour. Want a fusion option too?</div>
+              <div class="bubble me">Yes, fusion please!</div>
+              <div class="typing" aria-label="Stylist is typing"><i></i><i></i><i></i></div>
+            </div>
+            <p class="muted" style="position: absolute; bottom: 10px; font-size: 0.8rem">Example conversation</p>
+          </div>
+        </div>
+
+        <div class="feature reveal">
+          <div>
+            <span class="tag mint">Smart outfit recommendations</span>
+            <h3>Complete looks for any occasion</h3>
+            <p>Pick an occasion and the style of the event (Western, Desi, Fusion, Modest or your own tradition) and get full outfits built only from clothes you own.</p>
+            <ul>
+              <li>Optional weather check for today or tomorrow</li>
+              <li>Pieces you don’t own are clearly marked, and you can switch shopping ideas off</li>
+              <li>Inspiration photos and an “Ideas on Pinterest” link for each look</li>
+            </ul>
+          </div>
+          <div class="visual mint">
+            <div class="panel" style="box-shadow: var(--glow)">
+              <div class="chips" style="margin: 0 0 12px">
+                <span class="chip on">Office</span><span class="chip">Western</span><span class="chip">Fusion</span>
+              </div>
+              <div class="mock-eyebrow">Office</div>
+              <div class="mock-title">Oxford shirt + Navy chinos</div>
+              <div class="board">
+                <div class="col">
+                  <div class="tile t-tall"><img src="assets/garments/shirt.png" alt="White oxford shirt"></div>
+                  <div class="tile t-mid"><img src="assets/garments/chinos.png" alt="Navy chinos"></div>
+                </div>
+                <div class="col">
+                  <div class="tile t-tall"><img src="assets/garments/sweater.png" alt="Grey merino sweater"></div>
+                  <div class="tile t-short"><img src="assets/garments/loafers.png" alt="Brown leather loafers"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature reveal">
+          <div>
+            <span class="tag butter">Wardrobe insights</span>
+            <h3>See what really works for you</h3>
+            <p>How much of your wardrobe you actually wear, the pieces resting at the back, and your cost per wear when you add what you paid. Calculated on your device.</p>
+          </div>
+          <div class="visual butter">
+            <div class="panel bars">
+              <div class="mock-row">Worn in the last 90 days</div>
+              <div class="bar-row"><span>Shirts</span><div class="bar"><b style="--w: 82%; background: var(--primary)"></b></div><span>82%</span></div>
+              <div class="bar-row"><span>Trousers</span><div class="bar"><b style="--w: 64%; background: var(--mint)"></b></div><span>64%</span></div>
+              <div class="bar-row"><span>Shoes</span><div class="bar"><b style="--w: 51%; background: var(--butter)"></b></div><span>51%</span></div>
+              <div class="bar-row"><span>Dresses</span><div class="bar"><b style="--w: 18%; background: var(--coral)"></b></div><span>18%</span></div>
+              <p class="muted" style="font-size: 0.85rem">Example figures, for illustration.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature reveal">
+          <div>
+            <span class="tag lavender">Outfit planning</span>
+            <h3>Plan the week, wear it with confidence</h3>
+            <p>Put looks on the calendar for the next two weeks and tap “Wore it today”. Your stylist remembers, so it won’t suggest the same outfit twice in a row.</p>
+          </div>
+          <div class="visual lavender">
+            <div class="panel">
+              <div class="mock-row" style="margin-bottom: 12px">This week <span>planned · worn</span></div>
+              <div class="cal">
+                <span class="h">M</span><span class="h">T</span><span class="h">W</span><span class="h">T</span><span class="h">F</span><span class="h">S</span><span class="h">S</span>
+                <span class="d w">10</span><span class="d w">11</span><span class="d">12</span><span class="d p">13</span><span class="d p">14</span><span class="d">15</span><span class="d p">16</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature reveal">
+          <div>
+            <span class="tag coral">Virtual avatar experience</span><span class="soon">Coming soon</span>
+            <h3>See it on you, before you wear it</h3>
+            <p>We’re exploring a body-shape avatar so you can preview outfits on a figure like yours. It isn’t available yet; the app shows a preview of the plan.</p>
+          </div>
+          <div class="visual coral">
+            <div class="avatar-vis">
+              <svg viewBox="0 0 120 160" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="60" cy="24" r="14"/>
+                <path d="M34 60c4-14 14-20 26-20s22 6 26 20l6 34M34 60l-6 34M44 62v92M76 62v92M44 108h32" stroke-dasharray="5 7"/>
+              </svg>
+              <span class="soon" style="margin: 0">In design</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="more">
+          <article class="card reveal">
             <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></div>
             <h3>Smarter shopping</h3>
-            <p>Find the real gaps in your wardrobe: versatile pieces that create the most new outfits with what you own, plus a list of things you don't need to buy.</p>
+            <p>Find the real gaps: versatile pieces that create the most new outfits with what you own.</p>
           </article>
-          <article class="card">
+          <article class="card reveal">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v9H4v-9zM7 11l4-7a2 2 0 0 1 3 2l-1 4h6a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/></svg></div>
+            <h3>Learns your taste</h3>
+            <p>Thumbs up what you love. The stylist leans towards it and drops what you don’t.</p>
+          </article>
+          <article class="card reveal">
             <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/></svg></div>
             <h3>Share a look</h3>
-            <p>Send any outfit board as an image to a friend before you head out. It's created on your phone.</p>
+            <p>Send an outfit board as an image to a friend before you head out (phone apps).</p>
           </article>
-          <article class="card">
-            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19L19 5M8 5H5v3M16 19h3v-3"/><rect x="8" y="8" width="8" height="8" rx="1.5"/></svg></div>
-            <h3>Clean cut-outs</h3>
-            <p>In the iPhone and Android apps, backgrounds are removed on the device so your outfit boards look like a lookbook.</p>
+          <article class="card reveal">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></div>
+            <h3>Light and dark</h3>
+            <p>A calm light theme and a deep plum dark theme, on the web and in the app.</p>
           </article>
         </div>
       </div>
     </section>
 
+    <!-- How it works -->
     <section id="how">
       <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow">How it works</p>
+        <div class="section-head center reveal">
+          <span class="eyebrow">How it works</span>
           <h2>Three steps to a wardrobe that works for you</h2>
         </div>
         <div class="steps">
-          <div class="step">
-            <div class="phone"><img src="assets/screen-home.png" alt="Home screen with your wardrobe" width="390" height="844" loading="lazy"></div>
-            <h3><span class="num">01</span><br>Add your clothes</h3>
-            <p class="muted">Photograph a few favourite pieces. The AI tags them, and you confirm.</p>
+          <div class="step reveal">
+            <span class="art" style="background: var(--primary)"></span>
+            <div class="num">01</div>
+            <h3>Upload your clothes</h3>
+            <p>Snap a few favourite pieces, or pick photos you already have.</p>
           </div>
-          <div class="step">
-            <div class="phone"><img src="assets/screen-stylist.png" alt="Stylist screen with occasion choices and a free-text request" width="390" height="844" loading="lazy"></div>
-            <h3><span class="num">02</span><br>Ask for a look</h3>
-            <p class="muted">Choose an occasion or describe what you need, and get complete outfits.</p>
+          <div class="step reveal">
+            <span class="art" style="background: var(--coral)"></span>
+            <div class="num">02</div>
+            <h3>Let AI understand your wardrobe</h3>
+            <p>Each piece is tagged with its type, colours, material and formality. You confirm.</p>
           </div>
-          <div class="step">
-            <div class="phone"><img src="assets/screen-insights.png" alt="Wardrobe insights: share worn recently, never-worn items and cost per wear" width="390" height="844" loading="lazy"></div>
-            <h3><span class="num">03</span><br>Wear more of what you own</h3>
-            <p class="muted">Log what you wear and watch your cost per wear fall.</p>
+          <div class="step reveal">
+            <span class="art" style="background: var(--mint)"></span>
+            <div class="num">03</div>
+            <h3>Discover outfits made for you</h3>
+            <p>Choose an occasion and get complete looks from what you own, in your style.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="privacy" class="alt">
+    <!-- Product showcase: real screenshots of the app with its demo wardrobe -->
+    <section class="band">
       <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow">Privacy</p>
-          <h2>Your wardrobe stays yours</h2>
+        <div class="section-head reveal">
+          <span class="eyebrow">Inside the app</span>
+          <h2>Made to feel like your own stylist</h2>
+          <p class="muted">Real screens from the web app, shown with its sample demo wardrobe.</p>
         </div>
-        <ul class="privacy-list">
-          <li><span class="tick" aria-hidden="true">✓</span><p><strong>Private by default.</strong> Your photos are stored in a private folder only your account can access. Every record is locked to your account.</p></li>
-          <li><span class="tick" aria-hidden="true">✓</span><p><strong>AI only with your permission.</strong> AI features are off until you switch them on. When on, your clothing photos, wardrobe details and style preferences are sent to Google's Gemini API to tag clothes and suggest outfits.</p></li>
-          <li><span class="tick" aria-hidden="true">✓</span><p><strong>Location only when you ask.</strong> For weather-aware outfits, your approximate location (about 1 km) is used to fetch a forecast and is not stored.</p></li>
-          <li><span class="tick" aria-hidden="true">✓</span><p><strong>Delete everything, any time.</strong> Remove all your clothes, or delete your account together with every photo and record.</p></li>
+        <div class="showcase">
+          <figure class="reveal" style="margin: 0">
+            <div class="browser">
+              <div class="bar-top"><i></i><i></i><i></i></div>
+              <img src="assets/screen-desktop.png" alt="Wardrobe AI home dashboard on a computer: the Style me card, quick actions, wardrobe statistics and recently added clothes" width="1366" height="900" loading="lazy">
+            </div>
+            <figcaption class="caption">Home dashboard on a computer</figcaption>
+          </figure>
+          <figure class="reveal" style="margin: 0">
+            <div class="phone"><img src="assets/screen-stylist.png" alt="An outfit suggestion on a phone with the outfit board and styling notes" width="390" height="844" loading="lazy"></div>
+            <figcaption class="caption">An outfit suggestion on a phone</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="about">
+      <div class="wrap about">
+        <div class="reveal">
+          <span class="eyebrow">About</span>
+          <h2 style="margin: 12px 0 18px">Fashion that starts in your own closet</h2>
+          <p class="muted">Wardrobe AI is a personal styling app for people of every gender, body, culture and style, from gym to office to a Desi wedding. It’s built around one idea: the best outfit is usually already in your wardrobe.</p>
+          <p class="muted">It’s in early access and free to use, with a daily limit on AI requests so it stays available for everyone. iPhone and Android apps are in development; the web app works in any modern browser today.</p>
+        </div>
+        <ul class="privacy-list reveal">
+          <li><span class="tick" aria-hidden="true">✓</span><p><strong>Private by default.</strong> Photos are stored in a private folder only your account can access.</p></li>
+          <li><span class="tick" aria-hidden="true">✓</span><p><strong>AI only with your permission.</strong> AI features stay off until you switch them on; then the data needed is sent to Google’s Gemini API.</p></li>
+          <li><span class="tick" aria-hidden="true">✓</span><p><strong>Location only when you ask</strong>, rounded to about 1 km for the weather, and never stored.</p></li>
+          <li><span class="tick" aria-hidden="true">✓</span><p><strong>Delete everything, any time</strong>, including your account and every photo. See the <a href="privacy.html">privacy policy</a>.</p></li>
         </ul>
-        <p class="muted" style="margin-top: 24px">Details are in the <a href="privacy.html">privacy policy</a>.</p>
       </div>
     </section>
 
-    <section id="faq">
+    <!-- FAQ -->
+    <section id="faq" class="band">
       <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow">FAQ</p>
+        <div class="section-head center reveal">
+          <span class="eyebrow">FAQ</span>
           <h2>Questions</h2>
         </div>
         <details>
@@ -153,15 +363,15 @@
         </details>
         <details>
           <summary>Do I need to buy anything?</summary>
-          <p>No. Outfits are built from clothes you own. You can switch off purchase suggestions completely and style only what's in your wardrobe.</p>
+          <p>No. Outfits are built from clothes you own. You can switch shopping ideas off and style only what’s in your wardrobe.</p>
         </details>
         <details>
           <summary>Can I try it without an account?</summary>
-          <p>Yes. Open the web app and choose "Explore demo" to look around with a sample wardrobe. Nothing is saved or sent, and the demo stylist uses simple rules instead of AI.</p>
+          <p>Yes. Open the web app and choose “Explore demo” to look around with a sample wardrobe. Nothing is saved or sent, and the demo stylist uses simple rules instead of AI.</p>
         </details>
         <details>
           <summary>Does it work for every style?</summary>
-          <p>Yes. Menswear, womenswear, mixed and traditional clothing, from gym to wedding. Tell the stylist about your preferred styles, colours to avoid and how you like things to fit.</p>
+          <p>Yes. Menswear, womenswear or both, and Western, Desi, Fusion, Modest or traditional dress, from gym to wedding. Tell the stylist your preferred styles, colours to avoid and how you like things to fit.</p>
         </details>
         <details>
           <summary>Is there a phone app?</summary>
@@ -169,17 +379,30 @@
         </details>
         <details>
           <summary>Who can see my photos?</summary>
-          <p>Only you. Photos are stored privately and shown to you through short-lived links. If you turn on AI features, the photos you analyse are processed by Google's Gemini API; see the privacy policy.</p>
+          <p>Only you. Photos are stored privately and shown to you through short-lived links. If you turn on AI features, the photos you analyse are processed by Google’s Gemini API; see the privacy policy.</p>
         </details>
       </div>
     </section>
 
-    <section class="cta alt">
+    <!-- Final call to action -->
+    <section>
       <div class="wrap">
-        <h2>Ready to rediscover your wardrobe?</h2>
-        <p class="muted">Start with five favourite pieces. It takes a couple of minutes.</p>
-        <div class="actions">
-          <a class="btn btn-primary" href="app/">Open the web app</a>
+        <div class="cta-box reveal">
+          <span class="blob" style="width: 260px; height: 260px; background: var(--coral); top: -90px; right: -60px"></span>
+          <span class="blob" style="width: 160px; height: 160px; background: var(--butter); bottom: -60px; left: -40px"></span>
+          <h2>Ready to love your wardrobe again?</h2>
+          <p>Start with five favourite pieces. It takes a couple of minutes.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="app/sign-in?mode=sign-up">Build my wardrobe</a>
+            <a class="btn btn-secondary" href="app/">Try the demo</a>
+          </div>
+          <div class="cta-garments" aria-hidden="true">
+            <div class="tile"><img src="assets/garments/denim-jacket.png" alt=""></div>
+            <div class="tile"><img src="assets/garments/dress.png" alt=""></div>
+            <div class="tile"><img src="assets/garments/sweater.png" alt=""></div>
+            <div class="tile"><img src="assets/garments/belt.png" alt=""></div>
+            <div class="tile"><img src="assets/garments/sneakers.png" alt=""></div>
+          </div>
         </div>
       </div>
     </section>
@@ -187,13 +410,42 @@
 
   <footer>
     <div class="wrap">
-      <span class="muted">© <span id="year">2026</span> Wardrobe AI</span>
-      <nav aria-label="Legal">
-        <a href="privacy.html">Privacy policy</a>
-        <a href="terms.html">Terms of use</a>
-      </nav>
+      <div class="foot">
+        <div>
+          <a class="brand" href="#top"><img src="assets/mark.svg" alt="">Wardrobe AI</a>
+          <p class="muted" style="margin-top: 12px; max-width: 32ch">Your personal AI stylist for the clothes you already own.</p>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how">How it works</a></li>
+            <li><a href="app/">Try the demo</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Account</h4>
+          <ul>
+            <li><a href="app/sign-in">Sign in</a></li>
+            <li><a href="app/sign-in?mode=sign-up">Create an account</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#about">About</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="privacy.html">Privacy policy</a></li>
+            <li><a href="terms.html">Terms of use</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© <span id="year">2026</span> Wardrobe AI</span>
+        <span>Made for every style.</span>
+      </div>
     </div>
   </footer>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="site.js"></script>
 </body>
 </html>

@@ -122,7 +122,10 @@ export default function ItemDetail() {
   return (
     <Screen edges={['bottom']}>
       <DemoBanner />
-      <ItemThumb item={item} />
+      {/* Capped so a desktop window shows a product-sized photo, not one filling the screen. */}
+      <View style={{ width: '100%', maxWidth: 420, alignSelf: 'center' }}>
+        <ItemThumb item={item} />
+      </View>
       <View style={{ gap: space.xs }}>
         <Heading style={{ fontSize: 26, lineHeight: 32 }}>{item.name}</Heading>
         {item.ai_tagged && !item.user_verified ? <Muted>Tagged by AI and not yet reviewed.</Muted> : null}

@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRef, useState, type ComponentRef, type ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/Text';
 import { useAppData } from '@/lib/data';
 import { radius, space, useTheme } from '@/lib/theme';
 import type { MissingItem } from '@/lib/types';
@@ -25,11 +26,14 @@ export function OutfitCard({
   outfit,
   actions,
   compact,
+  glow,
 }: {
   outfit: OutfitView;
   actions?: ReactNode;
   /** Board and title only, for calendar and history views. */
   compact?: boolean;
+  /** The lavender AI glow, for fresh suggestions. */
+  glow?: boolean;
 }) {
   const { colors } = useTheme();
   const { itemById } = useAppData();
@@ -40,7 +44,7 @@ export function OutfitCard({
   const tipCount = outfit.styling_tips.length + (outfit.weather_note ? 1 : 0);
 
   return (
-    <Card>
+    <Card glow={glow}>
       {/* The shareable part: everything in this view becomes the shared image. collapsable={false}
           keeps it a real native view on Android so it can be captured. */}
       <View ref={shareRef} collapsable={false} style={{ gap: space.md, backgroundColor: colors.surface }}>

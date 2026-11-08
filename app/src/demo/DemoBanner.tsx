@@ -1,5 +1,6 @@
 // Shown at the top of every screen reachable in demo mode, so sample data is never mistaken for real data.
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import { Text } from '@/components/Text';
 import { Button, Muted } from '../components/ui';
 import { useAppData } from '../lib/data';
 import { radius, space, useTheme } from '../lib/theme';

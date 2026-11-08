@@ -4,7 +4,7 @@ import type { ComponentProps } from 'react';
 import { Platform, useWindowDimensions, type ColorValue } from 'react-native';
 import { SideBar } from '@/components/SideBar';
 import { useAppData } from '@/lib/data';
-import { useTheme } from '@/lib/theme';
+import { fonts, useTheme } from '@/lib/theme';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -34,9 +34,9 @@ export default function TabLayout() {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           // Browsers report no safe-area inset, so give the labels some room above the screen edge.
-          ...(Platform.OS === 'web' ? { height: 62, paddingBottom: 8 } : null),
+          ...(Platform.OS === 'web' ? { height: 66, paddingBottom: 10, paddingTop: 6 } : null),
         },
-        tabBarLabelStyle: { fontSize: 12, fontWeight: '600' },
+        tabBarLabelStyle: { fontSize: 12, fontFamily: fonts.semibold },
       }}
     >
       <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: icon('home-outline') }} />

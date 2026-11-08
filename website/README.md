@@ -1,8 +1,17 @@
 # Website
 
 The public website: a landing page (`index.html`), a privacy policy and terms of use, and, at
-`/app/`, the web version of the app. Plain HTML and CSS with no build step; colours match the app's
-theme. The screenshots in `assets/` are of the app's demo mode.
+`/app/`, the web version of the app. Plain HTML, CSS and a small script (`site.js`) with no build
+step.
+
+- **Design:** the same system as the app (`app/src/lib/theme.ts`): lavender, coral, mint and butter,
+  Space Grotesk and Inter (from Google Fonts here; bundled in the app), light and dark themes.
+- **Theme:** the choice is saved under `wardrobe.theme` in `localStorage`, the same key the web app
+  uses, so the site and the app share it. An inline script in each page's `<head>` applies it
+  before the first paint.
+- **Pictures:** the hero and feature previews are built from the app's own demo clothing
+  illustrations (`assets/garments/`, drawn for this app). `screen-desktop.png` and
+  `screen-stylist.png` are screenshots of the app's demo mode.
 
 ## Publishing on GitHub Pages
 
