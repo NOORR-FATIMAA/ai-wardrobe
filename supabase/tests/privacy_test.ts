@@ -321,7 +321,7 @@ Deno.test("both cleanup copies are identical apart from quote style", async () =
 
 Deno.test("delete-account and Delete all clothes use the bounded cleanup", async () => {
   const fn = await read("../functions/delete-account/index.ts");
-  const profile = await read("../../app/src/app/(tabs)/profile.tsx");
+  const profile = await read("../../app/src/app/profile.tsx");
   for (const [name, source] of [["delete-account", fn], ["profile", profile]]) {
     assert(source.includes("removeUserFolder("), `${name} must use removeUserFolder`);
     assert(!source.includes("for (;;)"), `${name} still has an unbounded loop`);
