@@ -4,3 +4,6 @@
 !.env.example
 supabase/.temp/
 supabase/.branches/
+
+# Local website build (see website/README.md)
+_site/

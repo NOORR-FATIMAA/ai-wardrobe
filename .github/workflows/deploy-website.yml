@@ -1,0 +1,87 @@
+# Publishes the website to GitHub Pages: the landing site (website/) at the root and the web build
+# of the app at /app/. See website/README.md for the one-time setup.
+name: Deploy website
+
+on:
+  push:
+    branches: [main]
+    paths: ["website/**", "app/**", ".github/workflows/deploy-website.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Public values (the publishable key is meant to ship in apps); set them as repository
+      # variables: Settings → Secrets and variables → Actions → Variables.
+      EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      # "Explore demo" on the sign-in screen: sample data on the device only, no backend calls.
+      EXPO_PUBLIC_DEMO_MODE: "1"
+      # Project pages live at /<repository>/; set the CUSTOM_DOMAIN variable to "true" to serve from /.
+      CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN }}
+      REPOSITORY_NAME: ${{ github.event.repository.name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Work out the site's base path
+        run: |
+          if [ "$CUSTOM_DOMAIN" = "true" ]; then base=""; else base="/$REPOSITORY_NAME"; fi
+          echo "SITE_BASE_PATH=$base" >> "$GITHUB_ENV"
+          echo "Site base path: '${base:-/}'"
+
+      - name: Check configuration
+        run: |
+          if [ -z "$EXPO_PUBLIC_SUPABASE_URL" ] || [ -z "$EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY" ]; then
+            echo "::error::Set the EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY repository variables."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install app dependencies
+        working-directory: app
+        run: npm ci
+
+      - name: Build the web app under /app
+        working-directory: app
+        env:
+          EXPO_BASE_URL: ${{ env.SITE_BASE_PATH }}/app
+        run: npx expo export --platform web --output-dir ../_site/app
+
+      - name: Assemble the site
+        run: |
+          cp -r website/. _site/
+          rm -f _site/README.md
+          # Deep links such as /app/insights are app routes: GitHub Pages serves 404.html for them,
+          # which loads the app, and the app's router then shows the right screen.
+          cp _site/app/index.html _site/404.html
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
