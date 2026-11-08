@@ -42,12 +42,13 @@ function RootNavigator() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="item/[id]" options={{ title: 'Item' }} />
           <Stack.Screen name="avatar" options={{ title: 'Your avatar' }} />
+          {/* Computed on the device from the visible items, so it works with demo data too. */}
+          <Stack.Screen name="insights" options={{ title: 'Wardrobe insights' }} />
         </Stack.Protected>
         {/* Signed-in users only: these screens read or write account data. */}
         <Stack.Protected guard={realApp}>
           <Stack.Screen name="item/add" options={{ title: 'Add to wardrobe', presentation: 'modal' }} />
           <Stack.Screen name="outfits" options={{ title: 'Saved outfits' }} />
-          <Stack.Screen name="insights" options={{ title: 'Wardrobe insights' }} />
           <Stack.Screen name="calendar" options={{ title: 'Outfit calendar' }} />
           <Stack.Screen name="assistant" options={{ title: 'Stylist chat' }} />
           <Stack.Screen name="preferences" options={{ title: 'Style profile' }} />

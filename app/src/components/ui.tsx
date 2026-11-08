@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps, ReactNode } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -141,7 +142,7 @@ export function Chip({ label, selected, onPress }: { label: string; selected?: b
         },
       ]}
     >
-      <Text style={{ color: selected ? colors.onAccent : colors.text, fontSize: 14, fontWeight: '500' }}>{label}</Text>
+      <Text style={{ color: selected ? colors.onAccent : colors.text, fontSize: 14, fontWeight: '500', flexShrink: 1 }}>{label}</Text>
     </Pressable>
   );
 }
@@ -245,7 +246,13 @@ export function ErrorText({ message }: { message: string | null }) {
 }
 
 const styles = StyleSheet.create({
-  screenContent: { padding: space.lg, gap: space.lg, paddingBottom: space.xxl * 2 },
+  screenContent: {
+    padding: space.lg,
+    gap: space.lg,
+    paddingBottom: space.xxl * 2,
+    // In a desktop browser, keep screens in a readable, phone-like column instead of full width.
+    ...(Platform.OS === 'web' ? { width: '100%', maxWidth: 760, alignSelf: 'center' as const } : null),
+  },
   title: { fontFamily: fonts.display, fontSize: 30, lineHeight: 36 },
   heading: { fontFamily: fonts.display, fontSize: 20, lineHeight: 26 },
   body: { fontSize: 16, lineHeight: 23 },
@@ -261,7 +268,8 @@ const styles = StyleSheet.create({
     gap: space.sm,
   },
   buttonText: { fontSize: 16, fontWeight: '600' },
-  chip: { paddingHorizontal: 14, minHeight: 36, justifyContent: 'center', borderRadius: radius.pill, borderWidth: 1 },
+  // maxWidth lets a long label wrap inside the chip instead of running off a narrow screen.
+  chip: { paddingHorizontal: 14, paddingVertical: 6, minHeight: 36, maxWidth: '100%', justifyContent: 'center', borderRadius: radius.pill, borderWidth: 1 },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   card: { borderRadius: radius.lg, borderWidth: 1, padding: space.lg, gap: space.md },
   label: { fontSize: 13, fontWeight: '600', letterSpacing: 0.4, textTransform: 'uppercase' },
