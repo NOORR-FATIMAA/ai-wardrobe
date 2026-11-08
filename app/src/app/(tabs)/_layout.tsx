@@ -26,17 +26,18 @@ export default function TabLayout() {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           // Browsers report no safe-area inset, so give the labels some room above the screen edge.
-          ...(Platform.OS === 'web' ? { height: 60, paddingBottom: 8 } : null),
+          ...(Platform.OS === 'web' ? { height: 62, paddingBottom: 8 } : null),
         },
+        tabBarLabelStyle: { fontSize: 12, fontWeight: '600' },
       }}
     >
       <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: icon('home-outline') }} />
       <Tabs.Screen name="wardrobe" options={{ title: 'Wardrobe', tabBarIcon: icon('shirt-outline') }} />
       <Tabs.Screen name="stylist" options={{ title: 'Stylist', tabBarIcon: icon('sparkles-outline') }} />
-      {/* Demo mode: these tabs read and write account data, so they are hidden and unreachable. */}
+      {/* Demo mode: the shopping list reads and writes account data, so the tab is hidden and unreachable.
+          The profile is a stack screen opened from the Home header (app/profile.tsx). */}
       <Tabs.Protected guard={!demoActive}>
         <Tabs.Screen name="shopping" options={{ title: 'Shopping', tabBarIcon: icon('bag-outline') }} />
-        <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarIcon: icon('person-circle-outline') }} />
       </Tabs.Protected>
     </Tabs>
   );

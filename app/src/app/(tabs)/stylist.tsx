@@ -1,11 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, Switch, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { ItemThumb } from '@/components/ItemThumb';
 import { OutfitActions } from '@/components/OutfitActions';
 import { OutfitCard } from '@/components/OutfitCard';
-import { Body, Button, Card, Chip, ChipGroup, EmptyState, ErrorText, Field, Muted, Screen, TextField, Title } from '@/components/ui';
+import { Body, Button, Card, Chip, ChipGroup, EmptyState, ErrorText, Field, Muted, Screen, TextField, Title, Toggle } from '@/components/ui';
 import { DemoBanner, DemoOnlyNote } from '@/demo/DemoBanner';
 import { generateDemoOutfits } from '@/demo/demoStylist';
 import { api } from '@/lib/api';
@@ -26,6 +26,11 @@ export default function Stylist() {
   const { items, itemById, profile, demoActive } = useAppData();
 
   const [occasion, setOccasion] = useState<string[]>([]);
+  // A short list first (the chosen occasion, then the user's own, then the defaults); "More" shows all.
+  const [allOccasions, setAllOccasions] = useState(false);
+  const occasionOptions = allOccasions
+    ? OCCASIONS
+    : [...new Set([...occasion, ...(profile?.lifestyle_occasions ?? []), ...OCCASIONS])].slice(0, 6);
   const [request, setRequest] = useState('');
   const [anchorId, setAnchorId] = useState<string | null>(null);
   const [day, setDay] = useState<'today' | 'tomorrow'>('today');
@@ -140,7 +145,12 @@ export default function Stylist() {
       )}
 
       <Field label="Occasion">
-        <ChipGroup single options={OCCASIONS} value={occasion} onChange={setOccasion} />
+        <ChipGroup single options={occasionOptions} value={occasion} onChange={setOccasion} />
+        {occasionOptions.length < OCCASIONS.length ? (
+          <Pressable onPress={() => setAllOccasions(true)} accessibilityRole="button" hitSlop={8}>
+            <Text style={{ color: colors.accent, fontWeight: '600' }}>More occasions</Text>
+          </Pressable>
+        ) : null}
       </Field>
 
       <TextField
@@ -256,7 +266,7 @@ function ToggleRow({
         <Body style={{ fontWeight: '600' }}>{label}</Body>
         <Muted>{hint}</Muted>
       </View>
-      <Switch value={value} onValueChange={onChange} trackColor={{ true: colors.accent }} accessibilityLabel={label} />
+      <Toggle value={value} onValueChange={onChange} label={label} />
     </View>
   );
 }

@@ -6,7 +6,7 @@ import { useTheme } from '@/lib/theme';
 
 function RootNavigator() {
   const { session, profile, loading, demoActive } = useAppData();
-  const { colors, scheme } = useTheme();
+  const { colors } = useTheme();
 
   if (loading) {
     return (
@@ -22,7 +22,7 @@ function RootNavigator() {
 
   return (
     <>
-      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      <StatusBar style="dark" />
       <Stack
         screenOptions={{
           headerShadowVisible: false,
@@ -48,6 +48,7 @@ function RootNavigator() {
         {/* Signed-in users only: these screens read or write account data. */}
         <Stack.Protected guard={realApp}>
           <Stack.Screen name="item/add" options={{ title: 'Add to wardrobe', presentation: 'modal' }} />
+          <Stack.Screen name="profile" options={{ title: 'You' }} />
           <Stack.Screen name="outfits" options={{ title: 'Saved outfits' }} />
           <Stack.Screen name="calendar" options={{ title: 'Outfit calendar' }} />
           <Stack.Screen name="assistant" options={{ title: 'Stylist chat' }} />

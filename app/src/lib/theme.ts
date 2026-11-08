@@ -1,34 +1,23 @@
-import { Platform, useColorScheme } from 'react-native';
+import { Platform } from 'react-native';
 
-const light = {
-  background: '#F7F3EE',
+// "Soft & warm": cream background, white cards with a gentle shadow, warm greys and a muted
+// terracotta accent. One light palette on every device. Text colours meet WCAG AA contrast on both the
+// background and the cards (accent ≈ 4.7:1 on cream; white on accent ≈ 5:1).
+const colors = {
+  background: '#FAF6F1',
   surface: '#FFFFFF',
-  surfaceAlt: '#EFE8DF',
-  text: '#1D1A17',
-  textMuted: '#6E655C',
-  border: '#E4DBD0',
-  accent: '#8A4B2F',
+  surfaceAlt: '#F3ECE4',
+  text: '#2E2925',
+  textMuted: '#7A6F66',
+  border: '#ECE3D9',
+  accent: '#A65A35',
   onAccent: '#FFFFFF',
-  accentSoft: '#F2E2D7',
+  accentSoft: '#F5E6DC',
   success: '#3D6B4F',
   danger: '#B3261E',
 };
 
-const dark: typeof light = {
-  background: '#141210',
-  surface: '#1E1B18',
-  surfaceAlt: '#2A2622',
-  text: '#F3EEE8',
-  textMuted: '#A89E93',
-  border: '#37312B',
-  accent: '#D99A72',
-  onAccent: '#1D1A17',
-  accentSoft: '#3A2A20',
-  success: '#7FB58F',
-  danger: '#F2B8B5',
-};
-
-export type Colors = typeof light;
+export type Colors = typeof colors;
 
 export const fonts = {
   // Editorial serif for headings, system sans for everything else.
@@ -36,9 +25,11 @@ export const fonts = {
 };
 
 export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 };
-export const radius = { sm: 8, md: 14, lg: 20, pill: 999 };
+export const radius = { sm: 10, md: 16, lg: 24, pill: 999 };
+
+/** A soft, warm-tinted shadow for cards (replaces hard borders). */
+export const shadow = { boxShadow: '0 1px 2px rgba(74, 52, 33, 0.05), 0 6px 20px rgba(74, 52, 33, 0.06)' } as const;
 
 export function useTheme() {
-  const scheme = useColorScheme();
-  return { colors: scheme === 'dark' ? dark : light, scheme };
+  return { colors };
 }

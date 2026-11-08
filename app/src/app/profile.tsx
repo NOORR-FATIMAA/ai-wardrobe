@@ -1,8 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Platform, Pressable, Switch, Text, View } from 'react-native';
-import { Body, Button, Card, ErrorText, Heading, Muted, Screen, Title } from '@/components/ui';
+import { Alert, Platform, Pressable, Text, View } from 'react-native';
+import { Body, Button, Card, ErrorText, Heading, Muted, Screen, Title, Toggle } from '@/components/ui';
 import { api } from '@/lib/api';
 import { useAppData } from '@/lib/data';
 import { removeUserFolder } from '@/lib/storageCleanup';
@@ -21,7 +21,6 @@ function confirm(title: string, message: string, onConfirm: () => void) {
 }
 
 export default function Profile() {
-  const { colors } = useTheme();
   const { session, profile, items, updateProfile, refreshItems } = useAppData();
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -75,16 +74,21 @@ export default function Profile() {
   }
 
   return (
-    <Screen>
+    <Screen edges={['bottom']}>
       <View style={{ gap: space.xs }}>
-        <Title>{profile?.display_name || 'Profile'}</Title>
+        <Title>{profile?.display_name || 'Your account'}</Title>
         <Muted>{session?.user.email}</Muted>
       </View>
 
       <Card>
-        <Row icon="color-palette-outline" label="Style profile" hint="Styles, colours, occasions, sizes" onPress={() => router.push('/preferences')} />
         <Row icon="heart-outline" label="Saved outfits" onPress={() => router.push('/outfits')} />
         <Row icon="calendar-outline" label="Outfit calendar" hint="Planned looks and what you wore" onPress={() => router.push('/calendar')} />
+        <Row icon="stats-chart-outline" label="Wardrobe insights" hint="Cost per wear, pieces you never wear" onPress={() => router.push('/insights')} />
+        <Row icon="chatbubbles-outline" label="Stylist chat" hint="Ask anything about your wardrobe" onPress={() => router.push('/assistant')} />
+      </Card>
+
+      <Card>
+        <Row icon="color-palette-outline" label="Style profile" hint="Styles, colours, occasions, sizes" onPress={() => router.push('/preferences')} />
         <Row icon="body-outline" label="3D avatar" hint="Coming soon" onPress={() => router.push('/avatar')} />
       </Card>
 
@@ -99,12 +103,7 @@ export default function Profile() {
               may read it.
             </Muted>
           </View>
-          <Switch
-            value={profile?.consent_ai_processing ?? false}
-            onValueChange={toggleAi}
-            trackColor={{ true: colors.accent }}
-            accessibilityLabel="AI processing"
-          />
+          <Toggle value={profile?.consent_ai_processing ?? false} onValueChange={toggleAi} label="AI processing" />
         </View>
         <Muted>
           Other users can&apos;t see your data. Photos are stored in a private bucket, resized and stripped of location

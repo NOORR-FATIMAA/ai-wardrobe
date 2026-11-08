@@ -97,8 +97,8 @@ export function OutfitCard({
 }
 
 const styles = StyleSheet.create({
-  eyebrow: { fontSize: 12, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' },
-  sectionLabel: { fontSize: 12, fontWeight: '600', letterSpacing: 0.4, textTransform: 'uppercase' },
+  eyebrow: { fontSize: 13, fontWeight: '600' },
+  sectionLabel: { fontSize: 13, fontWeight: '600' },
   missing: { flexDirection: 'row', gap: space.sm, padding: space.md, borderRadius: radius.md, borderWidth: 1 },
   row: { flexDirection: 'row', gap: space.sm, alignItems: 'flex-start' },
   // Over the card's top-right corner, outside the captured view, so the button is not in the image.

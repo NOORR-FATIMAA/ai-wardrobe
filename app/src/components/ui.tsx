@@ -6,6 +6,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   View,
@@ -14,7 +15,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { fonts, radius, space, useTheme } from '@/lib/theme';
+import { fonts, radius, shadow, space, useTheme } from '@/lib/theme';
 
 export function Screen({
   children,
@@ -175,6 +176,22 @@ export function ChipGroup({
   );
 }
 
+/** An on/off switch in the app's colours (a white knob on every platform, terracotta track when on). */
+export function Toggle({ value, onValueChange, label }: { value: boolean; onValueChange: (v: boolean) => void; label: string }) {
+  const { colors } = useTheme();
+  return (
+    <Switch
+      value={value}
+      onValueChange={onValueChange}
+      accessibilityLabel={label}
+      trackColor={{ true: colors.accent, false: colors.border }}
+      thumbColor="#FFFFFF"
+      // react-native-web colours the knob teal when on unless told otherwise (prop not in RN's types).
+      {...(Platform.OS === 'web' ? ({ activeThumbColor: '#FFFFFF' } as object) : null)}
+    />
+  );
+}
+
 export function Card({ children, style }: { children: ReactNode; style?: ViewStyle }) {
   const { colors } = useTheme();
   return (
@@ -271,8 +288,8 @@ const styles = StyleSheet.create({
   // maxWidth lets a long label wrap inside the chip instead of running off a narrow screen.
   chip: { paddingHorizontal: 14, paddingVertical: 6, minHeight: 36, maxWidth: '100%', justifyContent: 'center', borderRadius: radius.pill, borderWidth: 1 },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  card: { borderRadius: radius.lg, borderWidth: 1, padding: space.lg, gap: space.md },
-  label: { fontSize: 13, fontWeight: '600', letterSpacing: 0.4, textTransform: 'uppercase' },
+  card: { borderRadius: radius.lg, padding: space.lg, gap: space.md, ...shadow },
+  label: { fontSize: 14, fontWeight: '600' },
   input: { borderWidth: 1, borderRadius: radius.md, paddingHorizontal: space.md, minHeight: 48, fontSize: 16 },
   empty: { alignItems: 'center', gap: space.md, paddingVertical: space.xxl, paddingHorizontal: space.lg },
   emptyIcon: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' },

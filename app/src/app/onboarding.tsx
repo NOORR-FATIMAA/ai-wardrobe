@@ -1,8 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
-import { Switch, View } from 'react-native';
+import { View } from 'react-native';
 import { draftFromProfile, PreferencesForm, type PreferencesSection } from '@/components/PreferencesForm';
-import { Body, Button, Card, ErrorText, Muted, Screen, Title } from '@/components/ui';
+import { Body, Button, Card, ErrorText, Muted, Screen, Title, Toggle } from '@/components/ui';
 import { useAppData } from '@/lib/data';
 import { space, useTheme } from '@/lib/theme';
 
@@ -67,12 +67,7 @@ export default function Onboarding() {
               <Body style={{ fontWeight: '600' }}>Allow AI processing</Body>
               <Muted>Required for clothing recognition and the AI stylist. Turning it on sends data to Google Gemini as described above. You can turn it off later.</Muted>
             </View>
-            <Switch
-              value={aiConsent}
-              onValueChange={setAiConsent}
-              trackColor={{ true: colors.accent }}
-              accessibilityLabel="Allow AI processing"
-            />
+            <Toggle value={aiConsent} onValueChange={setAiConsent} label="Allow AI processing" />
           </Card>
         </View>
       ) : (

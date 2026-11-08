@@ -1,32 +1,19 @@
-/* Wardrobe AI website. Colours match the app's theme (app/src/lib/theme.ts), light and dark. */
+/* Wardrobe AI website. "Soft & warm", the same palette as the app (app/src/lib/theme.ts). */
 :root {
-  --bg: #F7F3EE;
+  --bg: #FAF6F1;
   --surface: #FFFFFF;
-  --surface-alt: #EFE8DF;
-  --text: #1D1A17;
-  --muted: #6E655C;
-  --border: #E4DBD0;
-  --accent: #8A4B2F;
+  --surface-alt: #F3ECE4;
+  --text: #2E2925;
+  --muted: #7A6F66;
+  --border: #ECE3D9;
+  --accent: #A65A35;
   --on-accent: #FFFFFF;
-  --accent-soft: #F2E2D7;
-  --radius: 20px;
+  --accent-soft: #F5E6DC;
+  --shadow: 0 1px 2px rgba(74, 52, 33, 0.05), 0 6px 20px rgba(74, 52, 33, 0.06);
+  --radius: 24px;
   --serif: Georgia, "Times New Roman", serif;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #141210;
-    --surface: #1E1B18;
-    --surface-alt: #2A2622;
-    --text: #F3EEE8;
-    --muted: #A89E93;
-    --border: #37312B;
-    --accent: #D99A72;
-    --on-accent: #1D1A17;
-    --accent-soft: #3A2A20;
-  }
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
@@ -94,7 +81,7 @@ section { padding: 72px 0; }
 .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 @media (max-width: 860px) { .features { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px) { .features { grid-template-columns: 1fr; } }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+.card { background: var(--surface); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
 .alt .card { background: var(--bg); }
 .card .icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); margin-bottom: 16px; }
 .card .icon svg { width: 22px; height: 22px; }

@@ -18,7 +18,9 @@ export default function Wardrobe() {
   const [query, setQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
-  const columns = width > 700 ? 4 : 2;
+  // Phones 2 columns, tablets and small windows 3, wide screens 4 (content is capped at MAX_WIDTH).
+  const contentWidth = Math.min(width, MAX_WIDTH);
+  const columns = contentWidth < 520 ? 2 : contentWidth < 820 ? 3 : 4;
   const present = CATEGORIES.filter((c) => items.some((i) => i.category === c.key));
 
   const filtered = useMemo(() => {
@@ -40,6 +42,7 @@ export default function Wardrobe() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
+      <View style={styles.column}>
       {demoActive ? (
         <View style={{ paddingHorizontal: space.lg, paddingTop: space.lg, gap: space.sm }}>
           <DemoBanner />
@@ -47,7 +50,18 @@ export default function Wardrobe() {
         </View>
       ) : null}
       <View style={styles.header}>
-        <Title>Wardrobe</Title>
+        <Title style={{ flex: 1 }}>Wardrobe</Title>
+        {items.length > 0 ? (
+          <Pressable
+            onPress={() => router.push('/insights')}
+            accessibilityRole="button"
+            accessibilityLabel="Wardrobe insights"
+            hitSlop={8}
+            style={[styles.iconButton, { backgroundColor: colors.accentSoft }]}
+          >
+            <Ionicons name="stats-chart-outline" size={20} color={colors.accent} />
+          </Pressable>
+        ) : null}
         {demoActive ? null : (
           <Button title="Add" icon="add" onPress={() => router.push('/item/add')} style={{ paddingHorizontal: space.lg }} />
         )}
@@ -119,14 +133,19 @@ export default function Wardrobe() {
           </Pressable>
         )}
       />
+      </View>
     </SafeAreaView>
   );
 }
 
+const MAX_WIDTH = 1100;
+
 const styles = StyleSheet.create({
+  column: { flex: 1, width: '100%', maxWidth: MAX_WIDTH, alignSelf: 'center' },
+  iconButton: { width: 44, height: 44, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: space.sm,
     alignItems: 'center',
     paddingHorizontal: space.lg,
     paddingTop: space.lg,

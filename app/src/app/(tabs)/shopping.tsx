@@ -199,6 +199,6 @@ function ListRow({ item, onStatus }: { item: ShoppingItem; onStatus: (i: Shoppin
 }
 
 const styles = StyleSheet.create({
-  label: { fontSize: 12, fontWeight: '700', letterSpacing: 0.6, textTransform: 'uppercase' },
+  label: { fontSize: 13, fontWeight: '600' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.md, borderRadius: radius.md, borderWidth: 1 },
 });

@@ -5,32 +5,24 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ItemThumb } from '@/components/ItemThumb';
 import { OutfitActions } from '@/components/OutfitActions';
 import { OutfitCard } from '@/components/OutfitCard';
-import { Body, Button, Card, Chip, Heading, Muted, Screen, Title } from '@/components/ui';
-import { DemoBanner, DemoOnlyNote } from '@/demo/DemoBanner';
+import { Body, Button, Card, Heading, Muted, Screen, Title } from '@/components/ui';
+import { DemoBanner } from '@/demo/DemoBanner';
 import { useAppData } from '@/lib/data';
 import { localDate } from '@/lib/dates';
 import { supabase } from '@/lib/supabase';
 import { radius, space, useTheme } from '@/lib/theme';
-import { categoryLabel, OCCASIONS, savedToStylist, type SavedOutfit } from '@/lib/types';
+import { savedToStylist, type SavedOutfit } from '@/lib/types';
 
 function greeting() {
   const hour = new Date().getHours();
   return hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
 }
 
+/** Home: one main action (Style me), today's planned look, and a glimpse of the wardrobe. */
 export default function Home() {
   const { colors } = useTheme();
   const { profile, items, demoActive } = useAppData();
   const name = profile?.display_name ? `, ${profile.display_name}` : '';
-  const quickOccasions = profile?.lifestyle_occasions.length ? profile.lifestyle_occasions : OCCASIONS.slice(0, 5);
-
-  const counts = items.reduce<Record<string, number>>((acc, item) => {
-    acc[item.category] = (acc[item.category] ?? 0) + 1;
-    return acc;
-  }, {});
-  const topCategories = Object.entries(counts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 4);
   const unverified = items.filter((i) => i.ai_tagged && !i.user_verified).length;
 
   const [todaysLook, setTodaysLook] = useState<SavedOutfit | null>(null);
@@ -50,14 +42,42 @@ export default function Home() {
   return (
     <Screen>
       <DemoBanner />
-      <View style={{ gap: space.xs }}>
-        <Muted>{greeting()}{name}</Muted>
-        <Title>What are we wearing today?</Title>
+      <View style={styles.header}>
+        <View style={{ flex: 1, gap: space.xs }}>
+          <Muted>{greeting()}{name}</Muted>
+          <Title>What&apos;s the plan today?</Title>
+        </View>
+        {demoActive ? null : (
+          <Pressable
+            onPress={() => router.push('/profile')}
+            accessibilityRole="button"
+            accessibilityLabel="Your profile and settings"
+            hitSlop={8}
+            style={[styles.avatar, { backgroundColor: colors.accentSoft }]}
+          >
+            <Text style={{ color: colors.accent, fontWeight: '700', fontSize: 16 }}>
+              {(profile?.display_name?.trim()[0] ?? '').toUpperCase() || <Ionicons name="person" size={18} />}
+            </Text>
+          </Pressable>
+        )}
       </View>
+
+      <Pressable
+        onPress={() => router.push('/stylist')}
+        accessibilityRole="button"
+        style={({ pressed }) => [styles.hero, { backgroundColor: colors.accent, opacity: pressed ? 0.9 : 1 }]}
+      >
+        <Ionicons name="sparkles" size={26} color={colors.onAccent} />
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={[styles.heroTitle, { color: colors.onAccent }]}>Style me</Text>
+          <Text style={{ color: colors.onAccent, opacity: 0.85 }}>An outfit from clothes you already own</Text>
+        </View>
+        <Ionicons name="arrow-forward" size={20} color={colors.onAccent} />
+      </Pressable>
 
       {todaysLook ? (
         <View style={{ gap: space.sm }}>
-          <Muted style={{ fontWeight: '700', color: colors.accent }}>PLANNED FOR TODAY</Muted>
+          <Heading>Today&apos;s look</Heading>
           <OutfitCard
             key={todaysLook.id}
             compact
@@ -72,130 +92,46 @@ export default function Home() {
         </View>
       ) : null}
 
-      <Pressable
-        onPress={() => router.push('/stylist')}
-        accessibilityRole="button"
-        style={[styles.hero, { backgroundColor: colors.accent }]}
-      >
-        <Ionicons name="sparkles" size={24} color={colors.onAccent} />
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.heroTitle, { color: colors.onAccent }]}>Ask your stylist</Text>
-          <Text style={{ color: colors.onAccent, opacity: 0.85 }}>Outfits from clothes you already own</Text>
-        </View>
-        <Ionicons name="arrow-forward" size={20} color={colors.onAccent} />
-      </Pressable>
-
-      <View style={{ gap: space.sm }}>
-        <Heading>Quick picks</Heading>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
-          {quickOccasions.map((o) => (
-            <Chip key={o} label={o} onPress={() => router.push({ pathname: '/stylist', params: { occasion: o } })} />
-          ))}
-        </View>
-      </View>
-
-      <Card>
-        <View style={styles.rowBetween}>
-          <Heading>Your wardrobe</Heading>
-          <Muted>{items.length} items</Muted>
-        </View>
-        {items.length === 0 ? (
-          <>
-            <Body>Start by photographing a few favourite pieces. The AI will tag them for you.</Body>
-            <Button title="Add your first item" icon="camera-outline" onPress={() => router.push('/item/add')} />
-          </>
-        ) : (
-          <>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: space.sm }}>
-              {items.slice(0, 10).map((item) => (
-                <Pressable
-                  key={item.id}
-                  onPress={() => router.push({ pathname: '/item/[id]', params: { id: item.id } })}
-                  accessibilityLabel={item.name}
-                >
-                  <ItemThumb item={item} size={84} />
-                </Pressable>
-              ))}
-            </ScrollView>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
-              {topCategories.map(([cat, n]) => (
-                <Muted key={cat}>{categoryLabel(cat)} · {n}</Muted>
-              ))}
-            </View>
-            {unverified > 0 ? (
-              <Muted>
-                {unverified} AI-tagged item{unverified > 1 ? 's' : ''} not yet reviewed. Open an item to confirm its details.
-              </Muted>
-            ) : null}
-          </>
-        )}
-      </Card>
-
-      {demoActive ? (
-        <DemoOnlyNote what="Stylist chat, the outfit calendar, saved outfits and the shopping list" />
+      {items.length === 0 ? (
+        <Card>
+          <Heading>Start your wardrobe</Heading>
+          <Body>Photograph a few favourite pieces. The AI tags them for you.</Body>
+          <Button title="Add your first item" icon="camera-outline" onPress={() => router.push('/item/add')} />
+        </Card>
       ) : (
-        <>
-          <View style={{ flexDirection: 'row', gap: space.md }}>
-            <Tile icon="chatbubbles-outline" title="Stylist chat" onPress={() => router.push('/assistant')} />
-            <Tile icon="calendar-outline" title="Outfit calendar" onPress={() => router.push('/calendar')} />
+        <View style={{ gap: space.sm }}>
+          <View style={styles.rowBetween}>
+            <Heading>Your clothes</Heading>
+            <Pressable onPress={() => router.push('/wardrobe')} accessibilityRole="link" hitSlop={8}>
+              <Text style={{ color: colors.accent, fontWeight: '600' }}>See all {items.length}</Text>
+            </Pressable>
           </View>
-          <View style={{ flexDirection: 'row', gap: space.md }}>
-            <Tile icon="heart-outline" title="Saved outfits" onPress={() => router.push('/outfits')} />
-            <Tile icon="bag-check-outline" title="Wardrobe gaps" onPress={() => router.push('/shopping')} />
-          </View>
-        </>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: space.sm }}>
+            {items.slice(0, 12).map((item) => (
+              <Pressable
+                key={item.id}
+                onPress={() => router.push({ pathname: '/item/[id]', params: { id: item.id } })}
+                accessibilityLabel={item.name}
+              >
+                <ItemThumb item={item} size={92} />
+              </Pressable>
+            ))}
+          </ScrollView>
+          {unverified > 0 ? (
+            <Muted>
+              {unverified} item{unverified > 1 ? 's' : ''} tagged by AI and waiting for your review.
+            </Muted>
+          ) : null}
+        </View>
       )}
-      {items.length ? (
-        <Tile
-          icon="stats-chart-outline"
-          title="Wardrobe insights"
-          subtitle="Cost per wear, and pieces you never wear"
-          onPress={() => router.push('/insights')}
-        />
-      ) : null}
-      <Tile icon="body-outline" title="Your 3D avatar" subtitle="Coming soon: preview outfits on you" onPress={() => router.push('/avatar')} />
     </Screen>
   );
 }
 
-function Tile({
-  icon,
-  title,
-  subtitle,
-  onPress,
-}: {
-  icon: React.ComponentProps<typeof Ionicons>['name'];
-  title: string;
-  subtitle?: string;
-  onPress: () => void;
-}) {
-  const { colors } = useTheme();
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      style={[styles.tile, { backgroundColor: colors.surface, borderColor: colors.border }]}
-    >
-      <Ionicons name={icon} size={22} color={colors.accent} />
-      <View style={{ flex: 1 }}>
-        <Text style={{ color: colors.text, fontWeight: '600', fontSize: 15 }}>{title}</Text>
-        {subtitle ? <Muted>{subtitle}</Muted> : null}
-      </View>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
-  hero: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg, borderRadius: radius.lg },
-  heroTitle: { fontSize: 18, fontWeight: '700' },
+  header: { flexDirection: 'row', alignItems: 'flex-start', gap: space.md },
+  avatar: { width: 44, height: 44, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  hero: { flexDirection: 'row', alignItems: 'center', gap: space.lg, padding: space.xl, borderRadius: radius.lg },
+  heroTitle: { fontSize: 20, fontWeight: '700' },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  tile: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.md,
-    padding: space.lg,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-  },
 });
