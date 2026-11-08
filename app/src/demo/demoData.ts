@@ -11,6 +11,7 @@ export const DEMO_PROFILE: Profile = {
   id: 'demo-profile',
   display_name: 'Demo guest',
   style_direction: 'mixed',
+  region: null,
   style_preferences: ['Minimal', 'Smart casual', 'Classic'],
   favorite_colors: ['Navy', 'White', 'Earth tones'],
   avoid_colors: ['Orange'],

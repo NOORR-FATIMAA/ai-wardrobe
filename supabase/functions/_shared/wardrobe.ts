@@ -179,13 +179,20 @@ export function summarizeFeedback(
 
 /** Only the profile fields the AI needs (not measurements, consent or timestamps). */
 const PROFILE_FIELDS =
-  "style_direction,style_preferences,favorite_colors,avoid_colors,fit_preferences,comfort_notes,lifestyle_occasions,budget_level,currency,sizes";
+  "style_direction,region,style_preferences,favorite_colors,avoid_colors,fit_preferences,comfort_notes,lifestyle_occasions,budget_level,currency,sizes";
 
 export async function loadProfileSummary(ctx: RequestContext): Promise<string> {
   const { data: p, error } = await ctx.db.from("profiles").select(PROFILE_FIELDS).eq("id", ctx.user.id).single();
   if (error) throw error;
   return profileSummary(p);
 }
+
+/** What the user asked to be dressed in (the app's "Dress me in" question). */
+const DRESSES_IN: Record<string, string> = {
+  womenswear: "womenswear (suggest womenswear pieces and purchases)",
+  menswear: "menswear (suggest menswear pieces and purchases)",
+  mixed: "both menswear and womenswear",
+};
 
 /** The profile as prompt text. Every user-written value is one line, length-limited (see promptText). */
 export function profileSummary(p: Record<string, unknown>): string {
@@ -195,7 +202,8 @@ export function profileSummary(p: Record<string, unknown>): string {
     : "";
   const list = (key: string) => promptList(p[key], 12, 40);
   const parts = [
-    p.style_direction && p.style_direction !== "no_preference" ? `Shops mostly: ${promptText(p.style_direction, 20)}` : null,
+    DRESSES_IN[p.style_direction as string] ? `Dresses in: ${DRESSES_IN[p.style_direction as string]}` : null,
+    p.region ? `Region: ${promptText(p.region, 60)}` : null,
     list("style_preferences") ? `Preferred styles: ${list("style_preferences")}` : null,
     list("favorite_colors") ? `Favourite colours: ${list("favorite_colors")}` : null,
     list("avoid_colors") ? `Colours to avoid: ${list("avoid_colors")}` : null,

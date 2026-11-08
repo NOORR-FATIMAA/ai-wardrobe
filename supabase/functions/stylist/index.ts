@@ -5,7 +5,7 @@ import { askModel, textPart } from "../_shared/ai.ts";
 import { getContext, requireAiAccess, reserveAiCall } from "../_shared/context.ts";
 import { HttpError, serve } from "../_shared/http.ts";
 import {
-  atMost, clip, LocalDate, OUTPUT_LIMITS, OutfitSchema, resolveOutfits, situationContext, STYLIST_RULES, wardrobeContext,
+  atMost, clip, EVENT_STYLES, LocalDate, OUTPUT_LIMITS, OutfitSchema, resolveOutfits, situationContext, STYLIST_RULES, wardrobeContext,
 } from "../_shared/outfits.ts";
 import { loadFeedback, loadProfileSummary, loadRecentWears, loadWardrobe } from "../_shared/wardrobe.ts";
 import { Coordinates, fetchForecast } from "../_shared/weather.ts";
@@ -13,6 +13,7 @@ import { Coordinates, fetchForecast } from "../_shared/weather.ts";
 const Input = z.object({
   request: z.string().max(600).optional(),
   occasion: z.string().max(80).optional(),
+  event_style: z.enum(Object.keys(EVENT_STYLES) as [keyof typeof EVENT_STYLES, ...(keyof typeof EVENT_STYLES)[]]).optional(),
   count: z.number().int().min(1).max(4).default(3),
   anchor_item_ids: z.array(z.string().uuid()).max(5).default([]),
   avoid_outfits: z.array(z.array(z.string().uuid()).max(20)).max(12).default([]),
@@ -31,7 +32,7 @@ const Recommendation = z.object({
 serve(async (req, body) => {
   const ctx = await getContext(req);
   const input = Input.parse(body);
-  if (!input.request && !input.occasion && input.anchor_item_ids.length === 0) {
+  if (!input.request && !input.occasion && !input.event_style && input.anchor_item_ids.length === 0) {
     throw new HttpError(400, "Choose an occasion or describe what you need.");
   }
 
@@ -56,6 +57,7 @@ serve(async (req, body) => {
   const prompt = [
     `Outfits are for ${input.day}.`,
     input.occasion ? `Occasion: ${input.occasion}` : null,
+    input.event_style ? `Event style: ${EVENT_STYLES[input.event_style]}` : null,
     input.request ? `In the user's words: "${input.request}"` : null,
     anchors.length ? `Every outfit must include: ${anchors.join(", ")}` : null,
     avoid.length ? `Do not repeat these combinations:\n${avoid.map((a) => `- ${a}`).join("\n")}` : null,

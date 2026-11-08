@@ -1,29 +1,29 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ItemThumb } from '@/components/ItemThumb';
 import { OutfitActions } from '@/components/OutfitActions';
 import { OutfitCard } from '@/components/OutfitCard';
-import { Body, Button, Card, Chip, ChipGroup, EmptyState, ErrorText, Field, Muted, Screen, TextField, Title, Toggle } from '@/components/ui';
-import { DemoBanner, DemoOnlyNote } from '@/demo/DemoBanner';
+import { DIRECTIONS } from '@/components/PreferencesForm';
+import { Body, Button, Card, Chip, ChipGroup, EmptyState, ErrorText, Muted, Screen, TextField, Title } from '@/components/ui';
+import { DemoBanner } from '@/demo/DemoBanner';
 import { generateDemoOutfits } from '@/demo/demoStylist';
 import { api } from '@/lib/api';
 import { useAppData } from '@/lib/data';
 import { approximateLocation } from '@/lib/outfits';
 import { radius, space, useTheme } from '@/lib/theme';
-import { OCCASIONS, type StylistResult } from '@/lib/types';
+import { EVENT_STYLES, type EventStyle, OCCASIONS, type StylistResult } from '@/lib/types';
 
-const EXAMPLES = [
-  'Smart but comfortable for a long day at university',
-  'Three outfits for a weekend trip without buying anything',
-  'Something for a summer wedding as a guest',
-];
+/** "Any" plus the event styles, as chip labels. */
+const STYLE_LABELS = ['Any', ...Object.values(EVENT_STYLES)];
+const styleFromLabel = (label: string | undefined) =>
+  (Object.keys(EVENT_STYLES) as EventStyle[]).find((k) => EVENT_STYLES[k] === label);
 
 export default function Stylist() {
   const { colors } = useTheme();
   const params = useLocalSearchParams<{ occasion?: string; anchor?: string }>();
-  const { items, itemById, profile, demoActive } = useAppData();
+  const { items, itemById, profile, updateProfile, demoActive } = useAppData();
 
   const [occasion, setOccasion] = useState<string[]>([]);
   // A short list first (the chosen occasion, then the user's own, then the defaults); "More" shows all.
@@ -31,6 +31,7 @@ export default function Stylist() {
   const occasionOptions = allOccasions
     ? OCCASIONS
     : [...new Set([...occasion, ...(profile?.lifestyle_occasions ?? []), ...OCCASIONS])].slice(0, 6);
+  const [styleLabel, setStyleLabel] = useState('Any');
   const [request, setRequest] = useState('');
   const [anchorId, setAnchorId] = useState<string | null>(null);
   const [day, setDay] = useState<'today' | 'tomorrow'>('today');
@@ -39,48 +40,60 @@ export default function Stylist() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<StylistResult | null>(null);
+  // After a result the form folds into a one-line summary, so the outfits get the screen.
+  const [editing, setEditing] = useState(true);
   // Bumped per result so each new batch gets fresh save/plan state.
   const [runId, setRunId] = useState(0);
 
-  // Deep links from Home ("Quick picks") and item pages ("Style this item"): apply new params once.
+  // Deep links from Home and item pages ("Style this item"): apply new params once.
   const paramsKey = `${params.occasion ?? ''}|${params.anchor ?? ''}`;
   const [appliedParams, setAppliedParams] = useState('');
   if (paramsKey !== appliedParams) {
     setAppliedParams(paramsKey);
     if (params.occasion) setOccasion([params.occasion]);
     if (params.anchor) setAnchorId(params.anchor);
+    setEditing(true);
   }
 
   const anchor = anchorId ? itemById(anchorId) : undefined;
+  const eventStyle = styleFromLabel(styleLabel);
+  const ready = Boolean(occasion.length || request.trim() || anchor || eventStyle);
+  const summary = [occasion[0], eventStyle ? styleLabel : null, request.trim() ? `“${request.trim()}”` : null, anchor?.name]
+    .filter(Boolean)
+    .join(' · ');
 
   async function run(alternatives = false) {
     setBusy(true);
     setError(null);
     try {
+      const avoid = alternatives && result ? result.outfits.map((o) => o.item_ids) : [];
+      let next: StylistResult;
       if (demoActive) {
         // Demo mode: local rules over the sample wardrobe; no location, no server, no AI.
-        setResult(generateDemoOutfits(items, {
+        next = generateDemoOutfits(items, {
           occasion: occasion[0],
+          eventStyle,
           request: request.trim() || undefined,
           anchorItemIds: anchor ? [anchor.id] : [],
-          avoidOutfits: alternatives && result ? result.outfits.map((o) => o.item_ids) : [],
+          avoidOutfits: avoid,
           allowPurchases,
-        }));
-        setRunId((n) => n + 1);
-        return;
+        });
+      } else {
+        const location = useWeather ? await approximateLocation() : undefined;
+        next = await api.stylist({
+          occasion: occasion[0],
+          event_style: eventStyle,
+          request: request.trim() || undefined,
+          anchor_item_ids: anchor ? [anchor.id] : [],
+          avoid_outfits: avoid,
+          allow_purchases: allowPurchases,
+          day,
+          location,
+        });
       }
-      const location = useWeather ? await approximateLocation() : undefined;
-      const next = await api.stylist({
-        occasion: occasion[0],
-        request: request.trim() || undefined,
-        anchor_item_ids: anchor ? [anchor.id] : [],
-        avoid_outfits: alternatives && result ? result.outfits.map((o) => o.item_ids) : [],
-        allow_purchases: allowPurchases,
-        day,
-        location,
-      });
       setResult(next);
       setRunId((n) => n + 1);
+      setEditing(false);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -120,106 +133,95 @@ export default function Stylist() {
   return (
     <Screen>
       <DemoBanner />
-      <View style={{ gap: space.xs }}>
-        <Title>Stylist</Title>
-        <Muted>
-          {demoActive
-            ? 'Demo: outfits from the sample wardrobe, put together on this device by simple rules (no AI).'
-            : 'Outfits built from your own wardrobe.'}
-        </Muted>
+      <View style={styles.header}>
+        <View style={{ flex: 1, gap: space.xs }}>
+          <Title>Stylist</Title>
+          <Muted>Where are you going? I’ll dress you from your own clothes.</Muted>
+        </View>
+        {demoActive ? null : (
+          <Pressable
+            onPress={() => router.push('/assistant')}
+            accessibilityRole="button"
+            accessibilityLabel="Chat with your stylist"
+            style={[styles.chat, { backgroundColor: colors.accentSoft }]}
+          >
+            <Ionicons name="chatbubble-ellipses-outline" size={20} color={colors.accent} />
+          </Pressable>
+        )}
       </View>
 
-      {demoActive ? null : (
-        <Pressable
-          onPress={() => router.push('/assistant')}
-          accessibilityRole="button"
-          style={{ flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg, borderRadius: radius.lg, backgroundColor: colors.accentSoft }}
-        >
-          <Ionicons name="chatbubbles-outline" size={22} color={colors.accent} />
-          <View style={{ flex: 1 }}>
-            <Body style={{ fontWeight: '600' }}>Chat with your stylist</Body>
-            <Muted>Ask anything, refine outfits, plan a trip</Muted>
+      {!demoActive && profile && !profile.style_direction ? (
+        <DressMeIn onPick={(value) => void updateProfile({ style_direction: value }).catch(() => undefined)} />
+      ) : null}
+
+      {editing ? (
+        <View style={{ gap: space.xl }}>
+          <Section title="Occasion">
+            <ChipGroup single options={occasionOptions} value={occasion} onChange={setOccasion} />
+            {occasionOptions.length < OCCASIONS.length ? (
+              <Pressable onPress={() => setAllOccasions(true)} accessibilityRole="button" hitSlop={8}>
+                <Text style={{ color: colors.accent, fontWeight: '600' }}>More occasions</Text>
+              </Pressable>
+            ) : null}
+          </Section>
+
+          <Section title="Style of the event">
+            <ChipGroup single options={STYLE_LABELS} value={[styleLabel]} onChange={([l]) => setStyleLabel(l ?? 'Any')} />
+          </Section>
+
+          {anchor ? (
+            <Card style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <ItemThumb item={anchor} size={48} />
+              <View style={{ flex: 1 }}>
+                <Muted>Build around</Muted>
+                <Body style={{ fontWeight: '600' }}>{anchor.name}</Body>
+              </View>
+              <Button variant="ghost" title="Remove" onPress={() => setAnchorId(null)} />
+            </Card>
+          ) : null}
+
+          <TextField
+            value={request}
+            onChangeText={setRequest}
+            placeholder="Anything else? e.g. outdoors in the evening, want to wear my red kurta"
+            accessibilityLabel="Anything else"
+            multiline
+            maxLength={600}
+            style={{ minHeight: 52, paddingTop: 14, textAlignVertical: 'top' }}
+          />
+
+          <View style={styles.options}>
+            {demoActive ? null : <Chip label="☀ Weather" selected={useWeather} onPress={() => setUseWeather(!useWeather)} />}
+            {useWeather && !demoActive ? (
+              <Chip label={day === 'today' ? 'Today' : 'Tomorrow'} onPress={() => setDay(day === 'today' ? 'tomorrow' : 'today')} />
+            ) : null}
+            <Chip label="Shopping ideas" selected={allowPurchases} onPress={() => setAllowPurchases(!allowPurchases)} />
           </View>
-          <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+
+          <ErrorText message={error} />
+          <Button
+            title={busy ? 'Styling…' : 'Style me'}
+            icon="sparkles"
+            onPress={() => run(false)}
+            loading={busy}
+            disabled={!ready}
+          />
+        </View>
+      ) : (
+        <Pressable
+          onPress={() => setEditing(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Change the request"
+          style={[styles.summary, { backgroundColor: colors.surfaceAlt }]}
+        >
+          <Ionicons name="options-outline" size={18} color={colors.textMuted} />
+          <Text numberOfLines={1} style={{ flex: 1, color: colors.text, fontWeight: '500' }}>{summary || 'Your request'}</Text>
+          <Text style={{ color: colors.accent, fontWeight: '600' }}>Change</Text>
         </Pressable>
       )}
 
-      <Field label="Occasion">
-        <ChipGroup single options={occasionOptions} value={occasion} onChange={setOccasion} />
-        {occasionOptions.length < OCCASIONS.length ? (
-          <Pressable onPress={() => setAllOccasions(true)} accessibilityRole="button" hitSlop={8}>
-            <Text style={{ color: colors.accent, fontWeight: '600' }}>More occasions</Text>
-          </Pressable>
-        ) : null}
-      </Field>
-
-      <TextField
-        label="Or describe what you need"
-        value={request}
-        onChangeText={setRequest}
-        placeholder={EXAMPLES[0]}
-        multiline
-        maxLength={600}
-        style={{ minHeight: 72, paddingTop: 12, textAlignVertical: 'top' }}
-      />
-      {!request ? (
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
-          {EXAMPLES.slice(1).map((e) => (
-            <Chip key={e} label={e} onPress={() => setRequest(e)} />
-          ))}
-        </View>
-      ) : null}
-
-      {anchor ? (
-        <Card style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <ItemThumb item={anchor} size={48} />
-          <View style={{ flex: 1 }}>
-            <Muted>Build around</Muted>
-            <Body style={{ fontWeight: '600' }}>{anchor.name}</Body>
-          </View>
-          <Button variant="ghost" title="Remove" onPress={() => setAnchorId(null)} />
-        </Card>
-      ) : null}
-
-      <Card>
-        {demoActive ? (
-          <DemoOnlyNote what="Weather-aware suggestions and stylist chat" />
-        ) : (
-          <ToggleRow
-            icon="partly-sunny-outline"
-            label="Consider the weather"
-            hint="Uses your approximate location once; it is not stored."
-            value={useWeather}
-            onChange={setUseWeather}
-          />
-        )}
-        {useWeather && !demoActive ? (
-          <View style={{ flexDirection: 'row', gap: space.sm }}>
-            <Chip label="Today" selected={day === 'today'} onPress={() => setDay('today')} />
-            <Chip label="Tomorrow" selected={day === 'tomorrow'} onPress={() => setDay('tomorrow')} />
-          </View>
-        ) : null}
-        <ToggleRow
-          icon="bag-outline"
-          label="Suggest items to buy"
-          hint="Turn off to style only what you own."
-          value={allowPurchases}
-          onChange={setAllowPurchases}
-        />
-      </Card>
-
-      <ErrorText message={error} />
-      <Button
-        title={busy ? 'Styling…' : 'Style me'}
-        icon="sparkles"
-        onPress={() => run(false)}
-        loading={busy}
-        disabled={!occasion.length && !request.trim() && !anchor}
-      />
-
-      {result ? (
+      {result && !editing ? (
         <View style={{ gap: space.lg }}>
-          <Muted>{result.understood_request}</Muted>
           {result.weather ? (
             <Muted>
               <Ionicons name="partly-sunny-outline" size={14} /> {result.weather}
@@ -233,10 +235,11 @@ export default function Stylist() {
             />
           ))}
           {result.wardrobe_note ? (
-            <Card style={{ backgroundColor: colors.accentSoft, borderColor: colors.accentSoft }}>
+            <Card style={{ backgroundColor: colors.accentSoft }}>
               <Body>{result.wardrobe_note}</Body>
             </Card>
           ) : null}
+          <ErrorText message={error} />
           <Button variant="secondary" icon="refresh" title="Show different outfits" onPress={() => run(true)} loading={busy} />
           <Muted style={{ textAlign: 'center' }}>AI suggestions can be imperfect. Trust your own judgement.</Muted>
         </View>
@@ -245,28 +248,35 @@ export default function Stylist() {
   );
 }
 
-function ToggleRow({
-  icon,
-  label,
-  hint,
-  value,
-  onChange,
-}: {
-  icon: React.ComponentProps<typeof Ionicons>['name'];
-  label: string;
-  hint: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   const { colors } = useTheme();
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
-      <Ionicons name={icon} size={20} color={colors.accent} />
-      <View style={{ flex: 1 }}>
-        <Body style={{ fontWeight: '600' }}>{label}</Body>
-        <Muted>{hint}</Muted>
-      </View>
-      <Toggle value={value} onValueChange={onChange} label={label} />
+    <View style={{ gap: space.sm }}>
+      <Text style={{ color: colors.text, fontSize: 15, fontWeight: '600' }}>{title}</Text>
+      {children}
     </View>
   );
 }
+
+/** Asked once, until answered: who the stylist dresses. Saved to the profile (editable in Style profile). */
+function DressMeIn({ onPick }: { onPick: (value: (typeof DIRECTIONS)[keyof typeof DIRECTIONS]) => void }) {
+  const { colors } = useTheme();
+  return (
+    <View style={[styles.ask, { backgroundColor: colors.accentSoft }]}>
+      <Text style={{ color: colors.text, fontWeight: '600' }}>First, what should I dress you in?</Text>
+      <View style={styles.options}>
+        {(Object.keys(DIRECTIONS) as (keyof typeof DIRECTIONS)[]).map((label) => (
+          <Chip key={label} label={label} onPress={() => onPick(DIRECTIONS[label])} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  header: { flexDirection: 'row', alignItems: 'flex-start', gap: space.md },
+  chat: { width: 44, height: 44, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  options: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  summary: { flexDirection: 'row', alignItems: 'center', gap: space.sm, padding: space.md, paddingHorizontal: space.lg, borderRadius: radius.pill },
+  ask: { gap: space.sm, padding: space.lg, borderRadius: radius.lg },
+});

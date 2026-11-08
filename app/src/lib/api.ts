@@ -2,7 +2,7 @@ import { FunctionsHttpError } from '@supabase/supabase-js';
 import { isDemoActive } from '../demo/config';
 import { localDate } from './dates';
 import { supabase } from './supabase';
-import type { AssistantResult, AssistantTurn, GapResult, InspirationPhoto, ItemAnalysis, StylistResult } from './types';
+import type { AssistantResult, AssistantTurn, EventStyle, GapResult, InspirationPhoto, ItemAnalysis, StylistResult } from './types';
 
 /** Calls an Edge Function and surfaces its `{ error }` message as a readable Error. */
 async function invoke<T>(name: string, body: object): Promise<T> {
@@ -27,6 +27,7 @@ export const api = {
   stylist: (params: {
     request?: string;
     occasion?: string;
+    event_style?: EventStyle;
     count?: number;
     anchor_item_ids?: string[];
     avoid_outfits?: string[][];

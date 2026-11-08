@@ -48,11 +48,21 @@ Rules:
 - A complete outfit normally covers body (top + bottom, or a one-piece) and footwear; add outerwear or accessories when useful. If the wardrobe cannot complete an outfit, use what exists and list the missing pieces in missing_items.
 - Respect the profile: preferred styles, colours to avoid, fit and comfort notes, budget.
 - Match the dress code and practicality of the occasion, and the weather when a forecast is given.
+- Respect the user's region and culture. Never assume Western dress is the default: for cultural or religious events (for example a Desi wedding, mehndi, Eid or Diwali) suggest the traditional or fusion wear that is expected there, and follow the event style when one is given.
 - Avoid repeating combinations from the recent wear history, and avoid items worn in the last two days unless the user asks for them. Give rarely worn pieces a chance.
 - Make each outfit meaningfully different from the others.
 - Explanations are specific (colour harmony, formality, silhouette, comfort), short, and never comment on the user's body.
 - Only suggest purchases when they genuinely matter; prefer solutions with owned clothes.
 - Learn from the outfit feedback: lean towards the colours, formality and pairings of liked outfits, and never repeat a disliked combination.`;
+
+/** Event styles the app offers, as the prompt describes them. */
+export const EVENT_STYLES = {
+  western: "Western: Western clothing and dress codes",
+  desi: "Desi / South Asian: e.g. shalwar kameez, kurta, saree, lehenga, sherwani, waistcoat, dupatta, khussa or juttis, as fits the occasion",
+  fusion: "Fusion: mix South Asian or other traditional pieces with Western ones (e.g. kurta with jeans, saree with a blazer)",
+  modest: "Modest: covered arms and legs, loose fits, optional headscarf-friendly styling",
+  traditional: "Traditional: the traditional dress of the user's own region or culture",
+} as const;
 
 export function wardrobeContext(profile: string, wardrobe: WardrobeSnapshot) {
   return [

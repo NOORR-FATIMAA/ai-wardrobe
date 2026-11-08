@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useRef, type ComponentRef, type ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useRef, useState, type ComponentRef, type ReactNode } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAppData } from '@/lib/data';
 import { radius, space, useTheme } from '@/lib/theme';
 import type { MissingItem } from '@/lib/types';
@@ -36,6 +36,8 @@ export function OutfitCard({
   const owned = outfit.item_ids.map(itemById).filter((i) => i !== undefined);
   const removedCount = outfit.item_ids.length - owned.length;
   const shareRef = useRef<ComponentRef<typeof View>>(null);
+  const [showTips, setShowTips] = useState(false);
+  const tipCount = outfit.styling_tips.length + (outfit.weather_note ? 1 : 0);
 
   return (
     <Card>
@@ -47,7 +49,10 @@ export function OutfitCard({
           <Heading>{outfit.title}</Heading>
         </View>
 
-        <OutfitBoard items={owned} missing={outfit.missing_items} />
+        {/* Capped so a wide screen shows a lookbook-sized board, not a wall of tiles. */}
+        <View style={{ width: '100%', maxWidth: 420, alignSelf: 'center' }}>
+          <OutfitBoard items={owned} missing={outfit.missing_items} />
+        </View>
         <Text style={{ color: colors.textMuted, fontSize: 13 }}>
           <Text style={{ fontWeight: '700' }}>You own: </Text>
           {owned.map((i) => i.name).join(' · ')}
@@ -78,15 +83,28 @@ export function OutfitCard({
       {!compact && (
         <>
           {outfit.explanation ? <Body>{outfit.explanation}</Body> : null}
-          {outfit.weather_note ? (
+          {tipCount ? (
+            <Pressable
+              onPress={() => setShowTips(!showTips)}
+              accessibilityRole="button"
+              accessibilityState={{ expanded: showTips }}
+              hitSlop={6}
+              style={[styles.row, { alignItems: 'center' }]}
+            >
+              <Ionicons name="sparkles-outline" size={16} color={colors.accent} />
+              <Text style={{ color: colors.accent, fontWeight: '600' }}>Styling tips</Text>
+              <Ionicons name={showTips ? 'chevron-up' : 'chevron-down'} size={16} color={colors.accent} />
+            </Pressable>
+          ) : null}
+          {showTips && outfit.weather_note ? (
             <View style={styles.row}>
               <Ionicons name="partly-sunny-outline" size={16} color={colors.textMuted} />
               <Muted style={{ flex: 1 }}>{outfit.weather_note}</Muted>
             </View>
           ) : null}
-          {outfit.styling_tips.map((tip) => (
+          {showTips && outfit.styling_tips.map((tip) => (
             <View key={tip} style={styles.row}>
-              <Ionicons name="sparkles-outline" size={16} color={colors.accent} />
+              <Text style={{ color: colors.accent, width: 16, textAlign: 'center' }}>•</Text>
               <Muted style={{ flex: 1 }}>{tip}</Muted>
             </View>
           ))}

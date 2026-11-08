@@ -143,7 +143,7 @@ with checks (check_name, expected, actual) as (
         select conname::text as taken from pg_constraint
          where connamespace = 'public'::regnamespace
            and conname in ('outfits_id_user_id_key', 'wear_log_outfit_owner_fkey', 'wardrobe_items_image_path_format',
-                           'wardrobe_items_purchase_price_range')
+                           'wardrobe_items_purchase_price_range', 'profiles_region_length')
         union
         select relname::text from pg_class
          where relnamespace = 'public'::regnamespace
@@ -154,7 +154,10 @@ with checks (check_name, expected, actual) as (
          where pronamespace = 'public'::regnamespace and proname = 'outfit_feedback_normalize'
         union
         select 'wardrobe_items.' || attname from pg_attribute
-         where attrelid = 'public.wardrobe_items'::regclass and attname = 'purchase_price' and not attisdropped) names), '(none)')),
+         where attrelid = 'public.wardrobe_items'::regclass and attname = 'purchase_price' and not attisdropped
+        union
+        select 'profiles.' || attname from pg_attribute
+         where attrelid = 'public.profiles'::regclass and attname = 'region' and not attisdropped) names), '(none)')),
     ('wear_log rows pointing at another user''s outfit', '0',
      (select count(*)::text from public.wear_log w
         join public.outfits o on o.id = w.outfit_id

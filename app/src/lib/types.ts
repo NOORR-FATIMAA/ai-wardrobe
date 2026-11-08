@@ -31,8 +31,19 @@ export const categoryLabel = (key: string) => CATEGORIES.find((c) => c.key === k
 
 export const OCCASIONS = [
   'University', 'Office', 'Business meeting', 'Casual outing', 'Date night', 'Wedding',
-  'Formal event', 'Party', 'Travel', 'Gym', 'Everyday', 'Religious or cultural event',
+  'Formal event', 'Party', 'Travel', 'Gym', 'Everyday', 'Religious or cultural event', 'Eid or festival',
+  'Mehndi or sangeet', 'Dinner invitation',
 ];
+
+/** Event styles the stylist understands (keys match the server's EVENT_STYLES). */
+export const EVENT_STYLES = {
+  western: 'Western',
+  desi: 'Desi',
+  fusion: 'Fusion',
+  modest: 'Modest',
+  traditional: 'Traditional (my culture)',
+} as const;
+export type EventStyle = keyof typeof EVENT_STYLES;
 
 export const STYLES = [
   'Minimal', 'Classic', 'Smart casual', 'Streetwear', 'Sporty', 'Bohemian',
@@ -52,6 +63,7 @@ export interface Profile {
   id: string;
   display_name: string | null;
   style_direction: 'menswear' | 'womenswear' | 'mixed' | 'no_preference' | null;
+  region: string | null;
   style_preferences: string[];
   favorite_colors: string[];
   avoid_colors: string[];

@@ -7,6 +7,7 @@ export type PreferencesDraft = Pick<
   Profile,
   | 'display_name'
   | 'style_direction'
+  | 'region'
   | 'style_preferences'
   | 'favorite_colors'
   | 'avoid_colors'
@@ -20,7 +21,7 @@ export type PreferencesDraft = Pick<
 
 export type PreferencesSection = 'style' | 'colors' | 'lifestyle' | 'fit';
 
-const DIRECTIONS = { Menswear: 'menswear', Womenswear: 'womenswear', 'A mix of both': 'mixed', 'No preference': 'no_preference' } as const;
+export const DIRECTIONS = { Womenswear: 'womenswear', Menswear: 'menswear', Both: 'mixed', 'No preference': 'no_preference' } as const;
 const BUDGETS = { 'Budget-friendly': 'low', 'Mid-range': 'medium', Premium: 'high' } as const;
 const SIZE_FIELDS = [
   { key: 'top', label: 'Tops' },
@@ -54,7 +55,7 @@ export function PreferencesForm({
             onChangeText={(t) => set('display_name', t || null)}
             placeholder="Optional"
           />
-          <Field label="Which sections do you usually shop?">
+          <Field label="Dress me in">
             <ChipGroup
               single
               options={Object.keys(DIRECTIONS)}
@@ -62,6 +63,13 @@ export function PreferencesForm({
               onChange={([l]) => set('style_direction', l ? DIRECTIONS[l as keyof typeof DIRECTIONS] : null)}
             />
           </Field>
+          <TextField
+            label="Where are you based?"
+            value={value.region ?? ''}
+            onChangeText={(t) => set('region', t.slice(0, 60) || null)}
+            placeholder="e.g. Pakistan, UK, Dubai"
+            maxLength={60}
+          />
           <Field label="Styles you love">
             <ChipGroup options={STYLES} value={value.style_preferences} onChange={(v) => set('style_preferences', v)} />
           </Field>
@@ -141,6 +149,7 @@ export function draftFromProfile(p: Profile | null): PreferencesDraft {
   return {
     display_name: p?.display_name ?? null,
     style_direction: p?.style_direction ?? null,
+    region: p?.region ?? null,
     style_preferences: p?.style_preferences ?? [],
     favorite_colors: p?.favorite_colors ?? [],
     avoid_colors: p?.avoid_colors ?? [],

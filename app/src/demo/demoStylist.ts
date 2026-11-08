@@ -4,6 +4,8 @@ import type { MissingItem, StylistOutfit, StylistResult, WardrobeItem } from '..
 
 export interface DemoStylistRequest {
   occasion?: string;
+  /** Only shapes the inspiration phrase: the sample wardrobe has no traditional wear. */
+  eventStyle?: string;
   request?: string;
   count?: number;
   anchorItemIds?: string[];
@@ -128,7 +130,7 @@ export function generateDemoOutfits(items: WardrobeItem[], req: DemoStylistReque
           ? ['Choose breathable layers you can remove as you warm up.']
           : ['Roll the sleeves or cuffs for a relaxed finish.'],
       weather_note: '',
-      inspiration_query: [...new Set(colors)].slice(0, 2).concat(req.occasion?.toLowerCase() || 'casual', 'outfit').join(' '),
+      inspiration_query: [...new Set(colors)].slice(0, 2).concat(req.eventStyle ?? [], req.occasion?.toLowerCase() || 'casual', 'outfit').join(' '),
     });
   }
 

@@ -64,3 +64,7 @@ Deno.test("the AI functions load feedback before reserving quota", async () => {
   const stylist = await Deno.readTextFile(new URL("../functions/stylist/index.ts", import.meta.url));
   assertStringIncludes(stylist, "...feedback.disliked", "the stylist must filter disliked combinations");
 });
+
+Deno.test("the stylist rules never treat Western dress as the default", () => {
+  assertStringIncludes(STYLIST_RULES, "Never assume Western dress is the default");
+});

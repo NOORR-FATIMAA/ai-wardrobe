@@ -123,6 +123,7 @@ Deno.test("the README's production preflight matches what the migrations need an
     "20261028000300_photo_path_update_policy.sql",
     "20261106000000_item_purchase_price.sql",
     "20261107000000_outfit_feedback.sql",
+    "20261109000000_profile_region.sql",
   ].map((name) => read(`../migrations/${name}`)));
   const all = migrations.join("\n");
   // Every name the migrations create must be checked as "must be free".
@@ -134,7 +135,7 @@ Deno.test("the README's production preflight matches what the migrations need an
   ];
   assertEquals(created.sort(), [
     "ai_usage_global", "outfit_feedback", "outfit_feedback_combo_key", "outfits_id_user_id_key",
-    "wardrobe_items_image_path_format", "wardrobe_items_purchase_price_range", "wear_log_outfit_idx", "wear_log_outfit_owner_fkey",
+    "profiles_region_length", "wardrobe_items_image_path_format", "wardrobe_items_purchase_price_range", "wear_log_outfit_idx", "wear_log_outfit_owner_fkey",
   ]);
   // A new function (as opposed to the ones the migrations deliberately replace) must be free too:
   // "create or replace" would otherwise silently overwrite an existing one.
@@ -142,7 +143,7 @@ Deno.test("the README's production preflight matches what the migrations need an
   for (const name of created) assert(sql.includes(`'${name}'`), `preflight does not check ${name}`);
   // New columns must be checked as free too.
   const columns = [...all.matchAll(/alter table public\.(\w+)\s+add column (\w+)/g)].map((m) => [m[1], m[2]]);
-  assertEquals(columns, [["wardrobe_items", "purchase_price"]]);
+  assertEquals(columns, [["wardrobe_items", "purchase_price"], ["profiles", "region"]]);
   for (const [table, column] of columns) {
     assert(sql.includes(`'public.${table}'::regclass and attname = '${column}'`), `preflight does not check ${table}.${column}`);
   }
@@ -177,6 +178,7 @@ Deno.test("applied migrations are unchanged and new ones sort after them", async
     "20261028000300_photo_path_update_policy.sql",
     "20261106000000_item_purchase_price.sql",
     "20261107000000_outfit_feedback.sql",
+    "20261109000000_profile_region.sql",
   ]);
 });
 
