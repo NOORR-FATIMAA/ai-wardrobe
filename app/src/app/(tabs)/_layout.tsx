@@ -1,7 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import type { ComponentProps } from 'react';
-import { Platform, type ColorValue } from 'react-native';
+import { Platform, useWindowDimensions, type ColorValue } from 'react-native';
+import { SideBar } from '@/components/SideBar';
 import { useAppData } from '@/lib/data';
 import { useTheme } from '@/lib/theme';
 
@@ -13,13 +14,20 @@ function icon(name: IconName) {
   };
 }
 
+/** Wide screens (tablets, desktop browsers) get a left sidebar; phones keep the bottom tab bar. */
+const SIDEBAR_MIN_WIDTH = 768;
+
 export default function TabLayout() {
   const { colors } = useTheme();
   const { demoActive } = useAppData();
+  const { width } = useWindowDimensions();
+  const sidebar = width >= SIDEBAR_MIN_WIDTH;
   return (
     <Tabs
+      tabBar={sidebar ? (props) => <SideBar {...props} /> : undefined}
       screenOptions={{
         headerShown: false,
+        tabBarPosition: sidebar ? 'left' : 'bottom',
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {

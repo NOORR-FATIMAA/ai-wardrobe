@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import { View } from 'react-native';
+import { DEMO_IMAGES } from '@/demo/demoImages';
 import { useAppData } from '@/lib/data';
 import { isCutout } from '@/lib/images';
 import { radius, useTheme } from '@/lib/theme';
@@ -22,6 +23,8 @@ export function ItemThumb({
   const { colors } = useTheme();
   const { imageUrls } = useAppData();
   const uri = item.image_path ? imageUrls[item.image_path] : undefined;
+  // Demo mode: bundled illustrations (demo items have no photos).
+  const illustration = uri ? undefined : DEMO_IMAGES[item.id];
   const icon = CATEGORIES.find((c) => c.key === item.category)?.icon ?? 'shirt-outline';
   const box = fill
     ? { flex: 1 }
@@ -43,6 +46,8 @@ export function ItemThumb({
           transition={150}
           recyclingKey={item.id}
         />
+      ) : illustration ? (
+        <Image source={illustration} style={{ flex: 1, margin: 8 }} contentFit="contain" recyclingKey={item.id} />
       ) : (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Ionicons name={icon} size={28} color={colors.textMuted} />

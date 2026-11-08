@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { ItemThumb } from '@/components/ItemThumb';
 import { OutfitActions } from '@/components/OutfitActions';
 import { OutfitCard } from '@/components/OutfitCard';
@@ -22,6 +22,7 @@ function greeting() {
 export default function Home() {
   const { colors } = useTheme();
   const { profile, items, demoActive } = useAppData();
+  const { width } = useWindowDimensions();
   const name = profile?.display_name ? `, ${profile.display_name}` : '';
   const unverified = items.filter((i) => i.ai_tagged && !i.user_verified).length;
 
@@ -47,7 +48,8 @@ export default function Home() {
           <Muted>{greeting()}{name}</Muted>
           <Title>What&apos;s the plan today?</Title>
         </View>
-        {demoActive ? null : (
+        {/* On wide screens the sidebar already shows the profile. */}
+        {demoActive || width >= 768 ? null : (
           <Pressable
             onPress={() => router.push('/profile')}
             accessibilityRole="button"
