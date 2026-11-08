@@ -255,7 +255,7 @@ Deno.test("outfit arrays are bounded in the response schema", () => {
   // A hint for the model only: a longer answer still validates and is trimmed later.
   assert(OutfitSchema.safeParse({
     title: "t", occasion: "o", item_refs: Array(20).fill("i1"), missing_items: [], explanation: "e",
-    styling_tips: Array(10).fill("tip"), weather_note: "",
+    styling_tips: Array(10).fill("tip"), weather_note: "", inspiration_query: "",
   }).success, "maxItems must not reject longer answers");
 });
 

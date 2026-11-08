@@ -19,7 +19,7 @@ const wardrobe = {
 } as unknown as WardrobeSnapshot;
 
 const outfit = (item_refs: string[]) => ({
-  title: "Look", occasion: "Office", item_refs, missing_items: [], explanation: "", styling_tips: [], weather_note: "",
+  title: "Look", occasion: "Office", item_refs, missing_items: [], explanation: "", styling_tips: [], weather_note: "", inspiration_query: "",
 });
 
 Deno.test("feedback becomes item codes, newest first, without removed items", () => {

@@ -17,6 +17,7 @@ An AI personal stylist and digital wardrobe for Android and iOS. Users photograp
 | **Outfit calendar & wear history**: plan any outfit for the next two weeks, "Wore it today" logs history and updates per-item wear counts; today's planned look appears on Home | `calendar.tsx`, `OutfitActions.tsx`, `log_wear()` |
 | **Wardrobe insights**: share of clothes worn in the last 90 days, never-worn and "resting" pieces, and, with an optional price per item, cost per wear (best value, highest per wear, money in unworn clothes). Computed on the phone; prices are never sent to the AI | `insights.tsx`, `lib/insights.ts` |
 | **Learns your taste**: thumbs up / down on any outfit. The stylist and chat see recent ratings (as item codes) and lean towards what you liked; the stylist never suggests a disliked combination again | `OutfitActions.tsx`, `lib/feedback.ts`, `outfit_feedback` table, `_shared/wardrobe.ts` |
+| **Outfit inspiration**: each stylist outfit carries a short style phrase written by the AI in the same call. "See looks like this" shows matching photos from Unsplash (hotlinked, credited to each photographer, cached on the server for 6 hours); "Ideas on Pinterest" opens Pinterest's search for the same phrase. Needs the `UNSPLASH_ACCESS_KEY` secret (free key from unsplash.com/developers; demo keys allow 50 searches an hour); without it only the Pinterest link works | `OutfitInspiration.tsx` → `supabase/functions/inspiration`, `_shared/unsplash.ts` |
 | **Avoids repeats**: the stylist and chat see the last 7 days of wear history and each item's last-worn date | `_shared/wardrobe.ts` |
 | **Smart shopping**: wardrobe gap analysis, versatile suggestions linked to owned items, "already covered" list, editable checklist | `(tabs)/shopping.tsx` → `supabase/functions/wardrobe-gaps` |
 | Privacy controls: AI consent switch, delete all clothes, delete account and all photos | `(tabs)/profile.tsx` → `supabase/functions/delete-account` |
@@ -38,6 +39,7 @@ Supabase (free tier)
         wardrobe-gaps  profile + wardrobe → shopping suggestions (Gemini)
         assistant      multi-turn chat over the wardrobe (Gemini); conversation not stored
         delete-account removes photos + account (rows cascade)
+        inspiration    style phrase → Unsplash photos (no AI, no AI quota)
    ▼
 Google Gemini API (generateContent), Open-Meteo (free weather, no key)
 ```

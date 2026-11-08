@@ -128,6 +128,7 @@ export function generateDemoOutfits(items: WardrobeItem[], req: DemoStylistReque
           ? ['Choose breathable layers you can remove as you warm up.']
           : ['Roll the sleeves or cuffs for a relaxed finish.'],
       weather_note: '',
+      inspiration_query: [...new Set(colors)].slice(0, 2).concat(req.occasion?.toLowerCase() || 'casual', 'outfit').join(' '),
     });
   }
 

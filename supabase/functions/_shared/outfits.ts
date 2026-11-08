@@ -1,4 +1,5 @@
 import { z } from "npm:zod@4.6.7";
+import { searchPhrase } from "./unsplash.ts";
 import type { WardrobeSnapshot } from "./wardrobe.ts";
 
 /** Upper bounds for AI output returned to the app (generous for real answers, bounded for bad ones). */
@@ -34,6 +35,10 @@ export const OutfitSchema = z.object({
   explanation: z.string().describe("Why this outfit works: colour, proportion, dress code, comfort"),
   styling_tips: z.array(z.string()).meta(atMost(OUTPUT_LIMITS.tips)),
   weather_note: z.string().describe("How the outfit suits the forecast, or empty if no forecast"),
+  inspiration_query: z.string().describe(
+    "3-6 word photo search phrase for this look's style and vibe, e.g. 'cream knit camel trousers minimal'. " +
+      "Clothes, colours and mood only: no item codes, names, brands or people",
+  ),
 });
 
 export const STYLIST_RULES = `You are a warm, practical personal stylist inside a wardrobe app used by people of every gender, body, culture and style.
@@ -126,6 +131,8 @@ export function resolveOutfits(
       explanation: clip(wardrobe.nameCodes(rest.explanation), OUTPUT_LIMITS.text),
       styling_tips: rest.styling_tips.slice(0, OUTPUT_LIMITS.tips).map((tip) => clip(wardrobe.nameCodes(tip), OUTPUT_LIMITS.tip)),
       weather_note: clip(rest.weather_note, OUTPUT_LIMITS.text),
+      // Sent to photo and pin searches, so item codes are removed (never replaced with the user's names).
+      inspiration_query: searchPhrase(rest.inspiration_query),
     });
     if (result.length >= Math.min(max, OUTPUT_LIMITS.outfits)) break;
   }

@@ -126,6 +126,20 @@ export interface StylistOutfit {
   explanation: string;
   styling_tips: string[];
   weather_note: string;
+  /** Short style phrase for inspiration photo and Pinterest searches (not stored with saved outfits). */
+  inspiration_query?: string;
+}
+
+export interface InspirationPhoto {
+  id: string;
+  image_url: string;
+  width: number;
+  height: number;
+  color: string | null;
+  alt: string;
+  photographer: string;
+  photographer_url: string;
+  photo_url: string;
 }
 
 export interface StylistResult {

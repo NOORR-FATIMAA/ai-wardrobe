@@ -2,7 +2,7 @@ import { FunctionsHttpError } from '@supabase/supabase-js';
 import { isDemoActive } from '../demo/config';
 import { localDate } from './dates';
 import { supabase } from './supabase';
-import type { AssistantResult, AssistantTurn, GapResult, ItemAnalysis, StylistResult } from './types';
+import type { AssistantResult, AssistantTurn, GapResult, InspirationPhoto, ItemAnalysis, StylistResult } from './types';
 
 /** Calls an Edge Function and surfaces its `{ error }` message as a readable Error. */
 async function invoke<T>(name: string, body: object): Promise<T> {
@@ -49,6 +49,8 @@ export const api = {
 
   wardrobeGaps: (params: { focus?: string; max_suggestions?: number }) =>
     invoke<GapResult>('wardrobe-gaps', params),
+
+  inspiration: (query: string) => invoke<{ photos: InspirationPhoto[] }>('inspiration', { query }),
 
   deleteAccount: () => invoke<{ deleted: boolean }>('delete-account', {}),
 };

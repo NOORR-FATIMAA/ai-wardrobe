@@ -5,6 +5,7 @@ import { useAppData } from '@/lib/data';
 import { radius, space, useTheme } from '@/lib/theme';
 import type { MissingItem } from '@/lib/types';
 import { OutfitBoard } from './OutfitBoard';
+import { OutfitInspiration } from './OutfitInspiration';
 import { ShareOutfitButton } from './ShareOutfitButton';
 import { Body, Card, Heading, Muted } from './ui';
 
@@ -16,6 +17,7 @@ export interface OutfitView {
   explanation?: string | null;
   styling_tips: string[];
   weather_note?: string | null;
+  inspiration_query?: string | null;
 }
 
 /** Shows an outfit, keeping owned items clearly separate from suggested purchases. */
@@ -88,6 +90,7 @@ export function OutfitCard({
               <Muted style={{ flex: 1 }}>{tip}</Muted>
             </View>
           ))}
+          {outfit.inspiration_query ? <OutfitInspiration query={outfit.inspiration_query} /> : null}
         </>
       )}
 

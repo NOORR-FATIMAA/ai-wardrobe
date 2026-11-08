@@ -268,7 +268,7 @@ test("analyze-item rejects files that are not really images, or too large, befor
 // ---------------------------------------------------------------------------------------------
 const outfit = (refs: string[], extra: Record<string, unknown> = {}) => ({
   title: "Look", occasion: "Office", item_refs: refs, missing_items: [], explanation: "Works with i1.",
-  styling_tips: [], weather_note: "", ...extra,
+  styling_tips: [], weather_note: "", inspiration_query: "navy office look", ...extra,
 });
 
 test("user-written notes reach the prompt as data on one line, never as a new section", async () => {

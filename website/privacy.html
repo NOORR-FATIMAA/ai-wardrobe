@@ -47,6 +47,9 @@
     <h2>Location</h2>
     <p>Only when you ask for weather-aware outfits, your device's location, rounded to about 1 km, is sent to the <strong>Open-Meteo</strong> weather service to get a forecast. It is not stored.</p>
 
+    <h2>Inspiration photos</h2>
+    <p>When you tap <em>See looks like this</em> on an outfit, a short style phrase written by the stylist (for example "cream knit camel trousers minimal") is sent to <strong>Unsplash</strong> to find matching photos. It never includes your account details, item names or photos. The photos are then loaded directly from Unsplash, which, like any website, receives your device's IP address. <em>Ideas on Pinterest</em> opens Pinterest's own search page with the same phrase, under Pinterest's own privacy policy.</p>
+
     <h2>Where your data is stored</h2>
     <p>Your account, wardrobe data and photos are stored with <strong>Supabase</strong> (our database, authentication and file-storage provider) in <span class="placeholder">[region of your Supabase project]</span>. Photos are kept in a private storage area that only your account can access, and are shown to you through links that expire after an hour. Access rules in the database ensure each account can only read and change its own records.</p>
 
