@@ -4,11 +4,10 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { ItemThumb } from '@/components/ItemThumb';
-import { OutfitActions } from '@/components/OutfitActions';
-import { OutfitCard } from '@/components/OutfitCard';
+import { StylistOutfitGallery } from '@/components/looks/StylistOutfitGallery';
 import { DIRECTIONS } from '@/components/PreferencesForm';
 import { StylistLoader } from '@/components/StylistLoader';
-import { Badge, Body, Button, Card, Chip, ChipGroup, EmptyState, ErrorText, FadeIn, Muted, Screen, TextField, Title } from '@/components/ui';
+import { Badge, Body, Button, Card, Chip, ChipGroup, EmptyState, ErrorText, Muted, Screen, TextField, Title } from '@/components/ui';
 import { DemoBanner } from '@/demo/DemoBanner';
 import { generateDemoOutfits } from '@/demo/demoStylist';
 import { api } from '@/lib/api';
@@ -232,11 +231,9 @@ export default function Stylist() {
               <Ionicons name="partly-sunny-outline" size={14} /> {result.weather}
             </Muted>
           ) : null}
-          {result.outfits.map((outfit, index) => (
-            <FadeIn key={`${runId}-${index}`} delay={index * 120}>
-              <OutfitCard glow outfit={outfit} actions={<OutfitActions outfit={outfit} requestText={request.trim() || occasion[0]} />} />
-            </FadeIn>
-          ))}
+          {/* "Shop the look": the stylist's outfits as a gallery, look detail and item explorer. A new
+              key per answer resets its position and per-look state. */}
+          <StylistOutfitGallery key={runId} outfits={result.outfits} requestText={request.trim() || occasion[0]} />
           {result.wardrobe_note ? (
             <Card style={{ backgroundColor: colors.accentSoft }}>
               <Body>{result.wardrobe_note}</Body>

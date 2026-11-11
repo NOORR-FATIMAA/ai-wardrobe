@@ -13,12 +13,15 @@ export function ItemThumb({
   size,
   fill,
   fit = 'cover',
+  bare,
 }: {
   item: WardrobeItem;
   size?: number;
   /** Stretch to the parent's size instead of a square. */
   fill?: boolean;
   fit?: 'cover' | 'contain';
+  /** No tile behind the picture (for compositions that draw their own backdrop). */
+  bare?: boolean;
 }) {
   const { colors } = useTheme();
   const { imageUrls } = useAppData();
@@ -34,7 +37,7 @@ export function ItemThumb({
 
   return (
     <View
-      style={[box, { borderRadius: radius.md, overflow: 'hidden', backgroundColor: uri || illustration ? colors.photoTile : colors.surfaceAlt }]}
+      style={[box, { borderRadius: radius.md, overflow: 'hidden', backgroundColor: bare ? 'transparent' : uri || illustration ? colors.photoTile : colors.surfaceAlt }]}
       accessibilityLabel={item.name}
       accessible
     >
