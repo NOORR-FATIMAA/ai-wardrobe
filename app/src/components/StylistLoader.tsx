@@ -12,15 +12,15 @@ const NATIVE_DRIVER = Platform.OS !== 'web';
  * Shown while the AI stylist works (a few seconds): a pulsing sparkle, the step it is on, and a
  * skeleton of the outfit card that is coming. The steps are a friendly progress cue, not live status.
  */
-export function StylistLoader() {
+export function StylistLoader({ title = 'Styling you', steps = STEPS }: { title?: string; steps?: string[] } = {}) {
   const { colors, reduceMotion } = useTheme();
   const [step, setStep] = useState(0);
   const [pulse] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
-    const timer = setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 1800);
+    const timer = setInterval(() => setStep((s) => Math.min(s + 1, steps.length - 1)), 1800);
     return () => clearInterval(timer);
-  }, []);
+  }, [steps.length]);
 
   useEffect(() => {
     if (reduceMotion) return;
@@ -38,18 +38,18 @@ export function StylistLoader() {
   const rotate = pulse.interpolate({ inputRange: [0, 1], outputRange: ['-8deg', '8deg'] });
 
   return (
-    <View accessibilityRole="progressbar" accessibilityLabel={`Styling. ${STEPS[step]}`} style={[styles.card, { backgroundColor: colors.surface, boxShadow: colors.glow }]}>
+    <View accessibilityRole="progressbar" accessibilityLabel={`${title}. ${steps[step]}`} style={[styles.card, { backgroundColor: colors.surface, boxShadow: colors.glow }]}>
       <View style={styles.row}>
         <Animated.View style={[styles.orb, { backgroundColor: colors.primary, transform: [{ scale }, { rotate }] }]}>
           <Ionicons name="sparkles" size={24} color={colors.onPrimary} />
         </Animated.View>
         <View style={{ flex: 1, gap: 4 }}>
-          <Text style={{ color: colors.text, fontWeight: '700', fontSize: 16 }}>Styling you</Text>
-          <Text style={{ color: colors.textMuted, fontSize: 14 }}>{STEPS[step]}</Text>
+          <Text style={{ color: colors.text, fontWeight: '700', fontSize: 16 }}>{title}</Text>
+          <Text style={{ color: colors.textMuted, fontSize: 14 }}>{steps[step]}</Text>
         </View>
       </View>
       <View style={styles.dots}>
-        {STEPS.map((s, i) => (
+        {steps.map((s, i) => (
           <View key={s} style={[styles.dot, { backgroundColor: i <= step ? colors.accent : colors.surfaceAlt }]} />
         ))}
       </View>
