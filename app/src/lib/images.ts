@@ -31,20 +31,40 @@ export interface PreparedPhoto {
 }
 
 /**
- * Downscales to 1024px and re-encodes as JPEG (keeps storage and AI costs low, and re-encoding
- * drops EXIF metadata such as GPS location), then tries on-device background removal.
+ * Downscales to 1024px and re-encodes (keeps storage and AI costs low, and re-encoding drops EXIF
+ * metadata such as GPS location), then tries on-device background removal. Photos become JPEG; a PNG
+ * stays PNG, so an image whose background is already transparent doesn't turn black.
  */
 export async function preparePhoto(uri: string): Promise<PreparedPhoto> {
+  const png = await isPng(uri);
   const context = ImageManipulator.manipulate(uri);
-  context.resize({ width: 1024, height: null });
+  // Width only: the height follows the photo's proportions. (Passing `height: null` breaks the web
+  // implementation, which treats it as a height of zero.)
+  context.resize({ width: 1024 });
   const rendered = await context.renderAsync();
-  const saved = await rendered.saveAsync({ format: SaveFormat.JPEG, compress: 0.75 });
+  const saved = await rendered.saveAsync(png ? { format: SaveFormat.PNG } : { format: SaveFormat.JPEG, compress: 0.75 });
   return { original: saved.uri, cutout: await liftSubject(saved.uri) };
 }
 
+/**
+ * Whether a local image is a PNG: by its file name or data URL, or, for the web's `blob:` URLs (from
+ * the picker and the image manipulator), by the blob's own type.
+ */
+async function isPng(uri: string): Promise<boolean> {
+  if (isPngUri(uri)) return true;
+  if (!uri.startsWith('blob:')) return false;
+  try {
+    return (await (await fetch(uri)).blob()).type === 'image/png';
+  } catch {
+    return false;
+  }
+}
+
+const isPngUri = (uri: string) => /^data:image\/png[;,]|\.png($|\?)/i.test(uri);
+
 /** Uploads a prepared local image (JPEG original or PNG cutout) to the user's private folder. */
 export async function uploadWardrobePhoto(localUri: string, userId: string): Promise<string> {
-  const png = localUri.toLowerCase().endsWith('.png');
+  const png = await isPng(localUri);
   const rendered = await ImageManipulator.manipulate(localUri).renderAsync();
   const saved = await rendered.saveAsync(
     png ? { format: SaveFormat.PNG, base64: true } : { format: SaveFormat.JPEG, compress: 0.75, base64: true },
