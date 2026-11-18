@@ -22,10 +22,13 @@ export function OutfitRail({
   onOpen,
   keyboard = true,
   photoUrls = {},
+  generating = {},
 }: {
   looks: Look[];
   /** AI model photos by look index, shown instead of the mannequin. */
   photoUrls?: Record<number, string>;
+  /** Looks whose model photo is being made. */
+  generating?: Record<number, boolean>;
   /** Width available to the rail. */
   width: number;
   initialIndex?: number;
@@ -164,7 +167,7 @@ export function OutfitRail({
                 WEB ? ({ scrollSnapAlign: 'center', filter: i === index || reduceMotion ? 'none' : 'blur(2px)', transition: 'filter 250ms' } as object) : null,
               ]}
             >
-              <OutfitPreview look={look} width={cardWidth} photoUrl={photoUrls[look.index]} focused={i === index} onOpen={() => (i === index ? onOpen(look) : goTo(i))} />
+              <OutfitPreview look={look} width={cardWidth} photoUrl={photoUrls[look.index]} generating={Boolean(generating[look.index])} focused={i === index} onOpen={() => (i === index ? onOpen(look) : goTo(i))} />
             </Animated.View>
           );
         })}

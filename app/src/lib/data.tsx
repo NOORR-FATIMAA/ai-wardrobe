@@ -2,6 +2,7 @@ import type { Session } from '@supabase/supabase-js';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { DEMO_MODE_AVAILABLE, setDemoActiveFlag } from '../demo/config';
 import { DEMO_ITEMS, DEMO_PROFILE } from '../demo/demoData';
+import { GUEST_MODE } from './guest';
 import { clearSignedUrlCache, signedUrls } from './images';
 import { supabase } from './supabase';
 import type { Profile, WardrobeItem } from './types';
@@ -16,6 +17,11 @@ interface AppData {
   refreshItems(): Promise<void>;
   updateProfile(patch: Partial<Profile>): Promise<void>;
   itemById(id: string): WardrobeItem | undefined;
+  /** Guest mode only: why the automatic guest account could not be created, or null. */
+  guestError: string | null;
+  retryGuest(): void;
+  /** True for a guest (anonymous) account. */
+  isGuest: boolean;
   /** Demo mode: local sample data, no account and no backend. Never true while a real session exists. */
   demoActive: boolean;
   enterDemo(): void;
@@ -49,6 +55,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<WardrobeItem[]>([]);
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
 
+  const [guestError, setGuestError] = useState<string | null>(null);
+  const [guestAttempt, setGuestAttempt] = useState(0);
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
@@ -56,6 +65,27 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     });
     const { data } = supabase.auth.onAuthStateChange((_event, next) => setSession(next));
     return () => data.subscription.unsubscribe();
+  }, []);
+
+  // Guest mode: nobody signed in → create (or, on this device, keep) an anonymous account.
+  useEffect(() => {
+    if (!GUEST_MODE || !sessionLoaded || session) return;
+    let current = true;
+    supabase.auth.signInAnonymously().then(({ error }) => {
+      if (!current || !error) return;
+      setGuestError(
+        /anonymous/i.test(error.message)
+          ? 'Guest access is switched off on the server. In Supabase, turn on "Allow anonymous sign-ins".'
+          : 'Could not start the app. Check your connection and try again.',
+      );
+    });
+    return () => {
+      current = false;
+    };
+  }, [sessionLoaded, session, guestAttempt]);
+  const retryGuest = useCallback(() => {
+    setGuestError(null);
+    setGuestAttempt((n) => n + 1);
   }, []);
 
   const userId = session?.user.id;
@@ -122,7 +152,11 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     const visibleItems = demoActive ? DEMO_ITEMS : items;
     return {
       session,
-      loading: !sessionLoaded || (Boolean(session) && !profileLoaded),
+      // Guest mode: also loading while the guest account is being created.
+      loading: !sessionLoaded || (Boolean(session) && !profileLoaded) || (GUEST_MODE && !session && !guestError),
+      guestError,
+      retryGuest,
+      isGuest: Boolean(session?.user.is_anonymous),
       profile: demoActive ? DEMO_PROFILE : profile,
       items: visibleItems,
       imageUrls: demoActive ? {} : imageUrls,
@@ -136,7 +170,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       enterDemo,
       exitDemo,
     };
-  }, [session, sessionLoaded, profileLoaded, profile, items, imageUrls, refreshProfile, refreshItems, updateProfile, demoActive, enterDemo, exitDemo]);
+  }, [session, sessionLoaded, profileLoaded, profile, items, imageUrls, refreshProfile, refreshItems, updateProfile, demoActive, enterDemo, exitDemo, guestError, retryGuest]);
 
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }

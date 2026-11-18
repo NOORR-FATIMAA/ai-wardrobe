@@ -2,11 +2,14 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, View } from 'react-native';
+import { Text } from '@/components/Text';
+import { Button } from '@/components/ui';
+import { GUEST_MODE } from '@/lib/guest';
 import { AppDataProvider, useAppData } from '@/lib/data';
 import { fontFiles, ThemeProvider, useTheme } from '@/lib/theme';
 
 function RootNavigator() {
-  const { session, profile, loading, demoActive } = useAppData();
+  const { session, profile, loading, demoActive, guestError, retryGuest } = useAppData();
   const { colors } = useTheme();
   // The bundled fonts (Inter, Space Grotesk). A font that fails to load falls back to the system font.
   const [fontsLoaded, fontError] = useFonts(fontFiles);
@@ -15,6 +18,17 @@ function RootNavigator() {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
         <ActivityIndicator color={colors.accent} />
+      </View>
+    );
+  }
+
+  // Guest mode: the guest account could not be created, so explain instead of showing a sign-in form.
+  if (GUEST_MODE && !session && guestError) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16, padding: 24, backgroundColor: colors.background }}>
+        <Text style={{ color: colors.text, fontSize: 18, fontWeight: '700', textAlign: 'center' }}>Couldn&apos;t open Wardrobe AI</Text>
+        <Text style={{ color: colors.textMuted, textAlign: 'center', maxWidth: 420 }}>{guestError}</Text>
+        <Button title="Try again" icon="refresh" onPress={retryGuest} />
       </View>
     );
   }
@@ -35,7 +49,8 @@ function RootNavigator() {
           contentStyle: { backgroundColor: colors.background },
         }}
       >
-        <Stack.Protected guard={!signedIn && !demoActive}>
+        {/* Guest mode opens straight into a guest account, so the sign-in screen (and demo) are not offered. */}
+        <Stack.Protected guard={!GUEST_MODE && !signedIn && !demoActive}>
           <Stack.Screen name="sign-in" options={{ headerShown: false }} />
         </Stack.Protected>
         <Stack.Protected guard={signedIn && !onboarded}>

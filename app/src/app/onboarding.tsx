@@ -1,13 +1,15 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
-import { View } from 'react-native';
-import { draftFromProfile, PreferencesForm, type PreferencesSection } from '@/components/PreferencesForm';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { DIRECTIONS, draftFromProfile, PreferencesForm, type PreferencesSection } from '@/components/PreferencesForm';
+import { Text } from '@/components/Text';
 import { Body, Button, Card, ErrorText, Muted, Screen, Title, Toggle } from '@/components/ui';
 import { useAppData } from '@/lib/data';
-import { space, useTheme } from '@/lib/theme';
+import { fonts, radius, space, useTheme } from '@/lib/theme';
 
-const STEPS: { title: string; subtitle: string; section?: PreferencesSection }[] = [
-  { title: 'Your privacy, first', subtitle: 'How your photos and data are used.' },
+const STEPS: { title: string; subtitle: string; section?: PreferencesSection; kind?: 'dress' | 'privacy' }[] = [
+  { title: 'Who should we dress?', subtitle: 'Your stylist, outfits and model photos follow this. You can change it later.', kind: 'dress' },
+  { title: 'Your privacy, first', subtitle: 'How your photos and data are used.', kind: 'privacy' },
   { title: 'Your style', subtitle: 'Everything here is optional and can be changed later.', section: 'style' },
   { title: 'Colours', subtitle: 'What you reach for, and what you skip.', section: 'colors' },
   { title: 'Your week', subtitle: 'So suggestions fit your real life.', section: 'lifestyle' },
@@ -24,6 +26,9 @@ export default function Onboarding() {
   const [error, setError] = useState<string | null>(null);
   const current = STEPS[step];
   const last = step === STEPS.length - 1;
+  // The style questions after privacy are optional: "Skip for now" saves what is set and starts.
+  const optional = !current.kind;
+  const canContinue = current.kind !== 'dress' || Boolean(draft.style_direction);
 
   async function finish() {
     setBusy(true);
@@ -54,7 +59,38 @@ export default function Onboarding() {
         <Muted>{current.subtitle}</Muted>
       </View>
 
-      {step === 0 ? (
+      {current.kind === 'dress' ? (
+        <View style={{ gap: space.md }}>
+          {DRESS_OPTIONS.map((o) => {
+            const selected = draft.style_direction === DIRECTIONS[o.label];
+            return (
+              <Pressable
+                key={o.label}
+                onPress={() => setDraft({ ...draft, style_direction: DIRECTIONS[o.label] })}
+                accessibilityRole="radio"
+                accessibilityState={{ selected }}
+                accessibilityLabel={o.label}
+                style={({ hovered }) => [
+                  styles.dressOption,
+                  {
+                    backgroundColor: selected ? colors.primary : hovered ? colors.surfaceAlt : colors.surface,
+                    borderColor: selected ? colors.primary : colors.border,
+                  },
+                ]}
+              >
+                <View style={[styles.dressIcon, { backgroundColor: selected ? colors.onPrimary : colors.accentSoft }]}>
+                  <Ionicons name={o.icon} size={24} color={selected ? colors.primary : colors.accent} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontFamily: fonts.displaySemibold, fontSize: 19, color: selected ? colors.onPrimary : colors.text }}>{o.label}</Text>
+                  <Text style={{ color: selected ? colors.onPrimary : colors.textMuted, fontSize: 14 }}>{o.hint}</Text>
+                </View>
+                {selected ? <Ionicons name="checkmark-circle" size={24} color={colors.onPrimary} /> : null}
+              </Pressable>
+            );
+          })}
+        </View>
+      ) : current.kind === 'privacy' ? (
         <View style={{ gap: space.md }}>
           <Card>
             <PrivacyPoint icon="lock-closed-outline" text="Your wardrobe photos are stored in your private account. Other users of the app can't see them." />
@@ -81,12 +117,28 @@ export default function Onboarding() {
           title={last ? 'Start styling' : 'Continue'}
           onPress={last ? finish : () => setStep(step + 1)}
           loading={busy}
+          disabled={!canContinue}
           style={{ flex: 2 }}
         />
       </View>
+      {optional && !last ? (
+        <Button variant="ghost" title="Skip for now" onPress={finish} disabled={busy} />
+      ) : null}
     </Screen>
   );
 }
+
+const DRESS_OPTIONS: { label: keyof typeof DIRECTIONS; hint: string; icon: React.ComponentProps<typeof Ionicons>['name'] }[] = [
+  { label: 'Womenswear', hint: 'Dresses, tops, skirts, shalwar kameez, sarees…', icon: 'woman-outline' },
+  { label: 'Menswear', hint: 'Shirts, trousers, kurtas, sherwanis, suits…', icon: 'man-outline' },
+  { label: 'Both', hint: 'A mix of menswear and womenswear', icon: 'people-outline' },
+  { label: 'No preference', hint: "Style me without either; I'll decide", icon: 'sparkles-outline' },
+];
+
+const styles = StyleSheet.create({
+  dressOption: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg, borderRadius: radius.lg, borderWidth: 1.5 },
+  dressIcon: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+});
 
 function PrivacyPoint({ icon, text }: { icon: React.ComponentProps<typeof Ionicons>['name']; text: string }) {
   const { colors } = useTheme();

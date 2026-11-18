@@ -8,6 +8,7 @@ import { api } from '@/lib/api';
 import { useAppData } from '@/lib/data';
 import { removeUserFolder } from '@/lib/storageCleanup';
 import { supabase } from '@/lib/supabase';
+import { requestTour } from '@/lib/tour';
 import { fonts, radius, space, useTheme, type ThemePreference } from '@/lib/theme';
 
 function confirm(title: string, message: string, onConfirm: () => void) {
@@ -22,7 +23,7 @@ function confirm(title: string, message: string, onConfirm: () => void) {
 }
 
 export default function Profile() {
-  const { session, profile, items, updateProfile, refreshItems } = useAppData();
+  const { session, profile, items, updateProfile, refreshItems, isGuest } = useAppData();
   const { colors, preference, setPreference } = useTheme();
   const initial = (profile?.display_name?.trim()[0] ?? session?.user.email?.[0] ?? '').toUpperCase();
   const [busy, setBusy] = useState<string | null>(null);
@@ -83,8 +84,8 @@ export default function Profile() {
           <Text style={{ fontFamily: fonts.display, fontSize: 26, color: colors.onPastel }}>{initial || '?'}</Text>
         </View>
         <View style={{ flex: 1, gap: 2 }}>
-          <Title>{profile?.display_name || 'Your account'}</Title>
-          <Muted>{session?.user.email}</Muted>
+          <Title>{profile?.display_name || (isGuest ? 'Guest' : 'Your account')}</Title>
+          <Muted>{isGuest ? 'Guest account on this device' : session?.user.email}</Muted>
         </View>
       </View>
 
@@ -96,6 +97,16 @@ export default function Profile() {
         <Row icon="chatbubbles-outline" label="Stylist chat" hint="Ask anything about your wardrobe" onPress={() => router.push('/assistant')} />
         <Row icon="color-palette-outline" tone="coral" label="Style profile" hint="Who to dress, region, styles, colours, sizes" onPress={() => router.push('/preferences')} />
         <Row icon="body-outline" tone="mint" label="3D avatar" hint="Coming soon" onPress={() => router.push('/avatar')} />
+        <Row
+          icon="help-buoy-outline"
+          tone="butter"
+          label="Take the app tour"
+          hint="A quick guide to every feature"
+          onPress={() => {
+            requestTour();
+            router.replace('/');
+          }}
+        />
       </Card>
 
       <Heading>Appearance</Heading>
@@ -135,7 +146,15 @@ export default function Profile() {
 
       <Heading>Account</Heading>
       <ErrorText message={error} />
-      <Button variant="secondary" icon="log-out-outline" title="Sign out" onPress={() => supabase.auth.signOut()} />
+      {isGuest ? (
+        // Signing out of a guest account would lose access to its wardrobe for good.
+        <Muted>
+          You&apos;re using Wardrobe AI as a guest: everything is saved to this device&apos;s guest account. Signing in with
+          an email, to keep your wardrobe on other devices, is coming soon.
+        </Muted>
+      ) : (
+        <Button variant="secondary" icon="log-out-outline" title="Sign out" onPress={() => supabase.auth.signOut()} />
+      )}
       <Button
         variant="danger"
         icon="trash-outline"

@@ -20,19 +20,21 @@ export function OwnershipBadge({ look }: { look: Look }) {
 }
 
 /**
- * One look standing in the lineup: the full-body figure (mannequin, or its AI model photo) on the
+ * One look standing in the lineup: the full-body figure (its AI model photo, or its pieces as one outfit) on the
  * shared studio floor, with its number and name underneath.
  */
 export function OutfitPreview({
   look,
   width,
   photoUrl,
+  generating,
   focused,
   onOpen,
 }: {
   look: Look;
   width: number;
   photoUrl?: string | null;
+  generating?: boolean;
   focused: boolean;
   onOpen: () => void;
 }) {
@@ -44,7 +46,7 @@ export function OutfitPreview({
       accessibilityLabel={`Look ${look.number}, ${look.title}. ${look.occasion}. ${focused ? 'Open the look.' : 'Show this look.'}`}
       style={{ width, gap: space.sm }}
     >
-      <LookFigure look={look} photoUrl={photoUrl} style={{ borderRadius: radius.lg }} />
+      <LookFigure look={look} photoUrl={photoUrl} generating={generating} style={{ borderRadius: radius.lg }} />
       <View style={{ gap: 2, alignItems: 'center' }}>
         <Text style={[styles.number, { color: colors.accent }]}>LOOK {look.number}</Text>
         <Text numberOfLines={1} style={[styles.title, { color: colors.text }]}>

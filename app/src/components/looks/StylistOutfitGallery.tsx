@@ -31,7 +31,7 @@ const SIDE_PANEL_MIN_WIDTH = 860;
  */
 export function StylistOutfitGallery({ outfits, requestText }: { outfits: StylistOutfit[]; requestText?: string }) {
   const { colors } = useTheme();
-  const { itemById } = useAppData();
+  const { itemById, demoActive, profile } = useAppData();
   const looks: Look[] = useMemo(() => toLooks(outfits, itemById, categoryLabel), [outfits, itemById]);
   const [stage, setStage] = useState<Stage>({ name: 'gallery' });
   const [galleryIndex, setGalleryIndex] = useState(0);
@@ -41,6 +41,10 @@ export function StylistOutfitGallery({ outfits, requestText }: { outfits: Stylis
   const [photos, setPhotos] = useState<Record<number, string>>({});
   const [photoBusy, setPhotoBusy] = useState<Record<number, boolean>>({});
   const [photoErrors, setPhotoErrors] = useState<Record<number, string>>({});
+  // Model photos are made automatically for the look in focus. After an error that will repeat (no
+  // billing, daily limit), stop asking for the rest of the session instead of using up AI requests.
+  const [autoStopped, setAutoStopped] = useState(false);
+  const autoPhotos = !demoActive && Boolean(profile?.consent_ai_processing) && !autoStopped;
 
   const shopping: ShoppingState = {
     added,
@@ -52,27 +56,42 @@ export function StylistOutfitGallery({ outfits, requestText }: { outfits: Stylis
     },
   };
 
+  const createPhoto = useCallback(async (look: Look) => {
+    const owned = look.items.filter((i) => i.ownership === 'owned').map((i) => i.key);
+    if (!owned.length) return; // nothing of the user's to dress the model in
+    setPhotoBusy((p) => ({ ...p, [look.index]: true }));
+    setPhotoErrors((p) => ({ ...p, [look.index]: '' }));
+    try {
+      const missing = look.items
+        .filter((i) => i.ownership === 'suggested')
+        .map((i) => ({ name: i.name, category: i.suggestion?.category ?? '' }));
+      const { url } = await api.lookImage({ item_ids: owned, missing_items: missing });
+      setPhotos((p) => ({ ...p, [look.index]: url }));
+    } catch (e) {
+      const message = (e as Error).message;
+      setPhotoErrors((p) => ({ ...p, [look.index]: message }));
+      if (/billing|limit|not configured|not available/i.test(message)) setAutoStopped(true);
+    } finally {
+      setPhotoBusy((p) => ({ ...p, [look.index]: false }));
+    }
+  }, []);
+
   const modelPhoto = (look: Look): ModelPhotoState => ({
     url: photos[look.index] ?? null,
     busy: Boolean(photoBusy[look.index]),
     error: photoErrors[look.index] ?? null,
-    create: async () => {
-      setPhotoBusy((p) => ({ ...p, [look.index]: true }));
-      setPhotoErrors((p) => ({ ...p, [look.index]: '' }));
-      try {
-        const owned = look.items.filter((i) => i.ownership === 'owned').map((i) => i.key);
-        const missing = look.items
-          .filter((i) => i.ownership === 'suggested')
-          .map((i) => ({ name: i.name, category: i.suggestion?.category ?? '' }));
-        const { url } = await api.lookImage({ item_ids: owned, missing_items: missing });
-        setPhotos((p) => ({ ...p, [look.index]: url }));
-      } catch (e) {
-        setPhotoErrors((p) => ({ ...p, [look.index]: (e as Error).message }));
-      } finally {
-        setPhotoBusy((p) => ({ ...p, [look.index]: false }));
-      }
-    },
+    create: () => createPhoto(look),
   });
+
+  // The look in focus (centred in the lineup, or open) gets its model photo automatically.
+  const focusIndex = stage.name === 'gallery' ? galleryIndex : stage.look;
+  useEffect(() => {
+    const look = looks[focusIndex];
+    if (!autoPhotos || !look || photos[focusIndex] || photoBusy[focusIndex] || photoErrors[focusIndex]) return;
+    // A short pause, so looks that are only swiped past don't each start (and pay for) a photo.
+    const timer = setTimeout(() => void createPhoto(look), 600);
+    return () => clearTimeout(timer);
+  }, [autoPhotos, focusIndex, looks, photos, photoBusy, photoErrors, createPhoto]);
 
   const back = useCallback(() => {
     setStage((s) => (s.name === 'item' ? { name: 'detail', look: s.look } : { name: 'gallery' }));
@@ -117,9 +136,10 @@ export function StylistOutfitGallery({ outfits, requestText }: { outfits: Stylis
                   onIndexChange={setGalleryIndex}
                   onOpen={(look) => openLook(look.index)}
                   photoUrls={photos}
+                  generating={photoBusy}
                 />
               </View>
-              <FocusedLookPanel look={focused} compact={!sidePanel} onOpen={() => openLook(focused.index)} />
+              <FocusedLookPanel look={focused} compact={!sidePanel} photoError={photoErrors[focused.index] || null} onOpen={() => openLook(focused.index)} />
             </View>
           ) : null}
         </>
@@ -155,7 +175,7 @@ export function StylistOutfitGallery({ outfits, requestText }: { outfits: Stylis
 const PANEL_WIDTH = 300;
 
 /** Beside the lineup on wide screens (below it on phones): the centred look's pieces and Open. */
-function FocusedLookPanel({ look, compact, onOpen }: { look: Look; compact: boolean; onOpen: () => void }) {
+function FocusedLookPanel({ look, compact, photoError, onOpen }: { look: Look; compact: boolean; photoError: string | null; onOpen: () => void }) {
   const { colors } = useTheme();
   return (
     <View style={[styles.panel, compact ? null : { width: PANEL_WIDTH }, { backgroundColor: colors.surface }, shadowFor(colors)]}>
@@ -167,6 +187,9 @@ function FocusedLookPanel({ look, compact, onOpen }: { look: Look; compact: bool
           {look.title}
         </Text>
         <OwnershipBadge look={look} />
+        {photoError ? (
+          <Text style={{ color: colors.textMuted, fontSize: 12 }}>Model photo unavailable: {photoError}</Text>
+        ) : null}
       </View>
       {compact ? null : (
         <View style={{ gap: space.sm }}>

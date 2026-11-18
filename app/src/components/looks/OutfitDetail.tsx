@@ -59,7 +59,8 @@ export function OutfitDetail({
   const { width } = useWindowDimensions();
   const wide = width >= 1000; // the stylist column is capped; side-by-side only when there's room
   const [activeKey, setActiveKey] = useState<string | null>(null);
-  const [view, setView] = useState<'mannequin' | 'photo'>(modelPhoto.url ? 'photo' : 'mannequin');
+  // The model photo is the default view whenever the look has one.
+  const [view, setView] = useState<'mannequin' | 'photo'>('photo');
   const showPhoto = view === 'photo' && Boolean(modelPhoto.url);
 
   const select = (key: string) => {
@@ -114,7 +115,7 @@ export function OutfitDetail({
                 value={showPhoto ? 'photo' : 'mannequin'}
                 onChange={setView}
                 options={[
-                  { value: 'mannequin', label: 'Mannequin', icon: 'body-outline' },
+                  { value: 'mannequin', label: 'Pieces', icon: 'shirt-outline' },
                   { value: 'photo', label: 'Model photo', icon: 'image-outline' },
                 ]}
               />
@@ -123,6 +124,7 @@ export function OutfitDetail({
           <LookFigure
             look={look}
             photoUrl={showPhoto ? modelPhoto.url : null}
+            generating={modelPhoto.busy}
             hotspots
             activeKey={activeKey}
             onSelect={select}
@@ -158,7 +160,8 @@ export function OutfitDetail({
 function ModelPhotoAction({ photo, onCreated }: { photo: ModelPhotoState; onCreated: () => void }) {
   const { colors } = useTheme();
   const { demoActive } = useAppData();
-  if (photo.url) return null;
+  // While the automatic photo is being made, the figure itself shows "Dressing the model…".
+  if (photo.url || photo.busy) return null;
   if (demoActive) {
     return (
       <Text style={{ color: colors.textMuted, fontSize: 12, textAlign: 'center', marginTop: space.sm }}>
@@ -171,7 +174,7 @@ function ModelPhotoAction({ photo, onCreated }: { photo: ModelPhotoState; onCrea
       <Button
         variant="soft"
         icon="sparkles-outline"
-        title={photo.busy ? 'Creating model photo…' : 'Create model photo'}
+        title={photo.error ? 'Try the model photo again' : 'Create model photo'}
         loading={photo.busy}
         onPress={() => void photo.create().then(onCreated)}
       />

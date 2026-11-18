@@ -120,9 +120,9 @@ function useBuild(): Build {
 }
 
 /**
- * Full-body look: an illustrated mannequin dressed in the look's real pieces (wardrobe photos, demo
- * illustrations, or dashed outlines for suggested pieces), or, when `photoUrl` is given, the AI model
- * photo of the look. With `hotspots`, each piece gets a pulsing marker that selects it; the selected
+ * Full-body look: the AI model photo of the look when there is one (`photoUrl`); otherwise the look's
+ * real pieces (wardrobe photos, demo illustrations, or dashed outlines for suggested pieces) arranged
+ * as one standing outfit on an invisible mannequin, with a soft floor shadow. With `hotspots`, each piece gets a pulsing marker that selects it; the selected
  * piece shows its name.
  */
 export function LookFigure({
@@ -132,10 +132,13 @@ export function LookFigure({
   activeKey,
   onSelect,
   style,
+  generating,
 }: {
   look: Look;
-  /** A generated model photo of this look; replaces the mannequin. */
+  /** A generated model photo of this look; replaces the clothes-only view. */
   photoUrl?: string | null;
+  /** The model photo is being made: show a "Dressing the model" note over the clothes. */
+  generating?: boolean;
   hotspots?: boolean;
   activeKey?: string | null;
   onSelect?: (key: string) => void;
@@ -178,7 +181,6 @@ export function LookFigure({
     <View accessibilityLabel={description} style={[styles.figure, { aspectRatio: MANNEQUIN_ASPECT, backgroundColor: STUDIO.backdrop }, style]}>
       <View style={[styles.floor, { backgroundColor: STUDIO.floor }]} />
       <View style={[styles.shadow, { backgroundColor: STUDIO.shadow }]} />
-      <Mannequin build={build} />
 
       {pieces.map(({ item, box }) => {
         const dimmed = Boolean(activeKey) && activeKey !== item.key;
@@ -227,29 +229,31 @@ export function LookFigure({
             />
           ))
         : null}
+      {generating ? <Generating /> : null}
     </View>
   );
 }
 
-/** A neutral studio mannequin drawn with simple shapes; proportions follow the build. */
-function Mannequin({ build }: { build: Build }) {
-  const b = BUILD[build];
-  const half = b.shoulders / 2;
-  const part = (s: ViewStyle, shade = false): ViewStyle => ({ position: 'absolute', backgroundColor: shade ? STUDIO.bodyShade : STUDIO.body, ...s });
+/** Over the clothes while the AI model photo is being made. */
+function Generating() {
+  const { reduceMotion } = useTheme();
+  const [pulse] = useState(() => new Animated.Value(0.6));
+  useEffect(() => {
+    if (reduceMotion) return;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 1, duration: 800, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(pulse, { toValue: 0.6, duration: 800, useNativeDriver: Platform.OS !== 'web' }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [pulse, reduceMotion]);
   return (
-    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity: 0.7 }]}>
-      {/* Arms (behind the torso) */}
-      <View style={part({ left: `${50 - half - 7}%`, top: '13.5%', width: '8.5%', height: '30%', borderRadius: 999, transform: [{ rotate: '6deg' }] }, true)} />
-      <View style={part({ left: `${50 + half - 1.5}%`, top: '13.5%', width: '8.5%', height: '30%', borderRadius: 999, transform: [{ rotate: '-6deg' }] }, true)} />
-      {/* Legs */}
-      <View style={part({ left: `${50 - b.leg - 0.8}%`, top: '43%', width: `${b.leg}%`, height: '46.5%', borderRadius: 999 }, true)} />
-      <View style={part({ left: '50.8%', top: '43%', width: `${b.leg}%`, height: '46.5%', borderRadius: 999 }, true)} />
-      {/* Hips, torso, neck, head */}
-      <View style={part({ left: `${50 - b.hips / 2}%`, top: '35%', width: `${b.hips}%`, height: '11%', borderRadius: 30 })} />
-      <View style={part({ left: `${50 - half}%`, top: '12.5%', width: `${b.shoulders}%`, height: '26%', borderTopLeftRadius: 40, borderTopRightRadius: 40, borderBottomLeftRadius: 22, borderBottomRightRadius: 22 })} />
-      <View style={part({ left: '46.5%', top: '9.2%', width: '7%', height: '4.5%', borderRadius: 6 }, true)} />
-      <View style={part({ left: '42%', top: '1.8%', width: '16%', height: '8.6%', borderRadius: 999 })} />
-    </View>
+    <Animated.View accessibilityLiveRegion="polite" style={[styles.generating, { opacity: pulse }]}>
+      <Ionicons name="sparkles" size={13} color={STUDIO.white} />
+      <Text style={{ color: STUDIO.white, fontSize: 12, fontWeight: '700' }}>Dressing the model…</Text>
+    </Animated.View>
   );
 }
 
@@ -301,6 +305,7 @@ const styles = StyleSheet.create({
   shadow: { position: 'absolute', left: '28%', right: '28%', bottom: '4.2%', height: '2.4%', borderRadius: 999 },
   suggested: { flex: 1, borderWidth: 1.5, borderStyle: 'dashed', borderRadius: 14, alignItems: 'center', justifyContent: 'center', gap: 2, padding: 4 },
   transition: (Platform.OS === 'web' ? { transitionDuration: '220ms', transitionProperty: 'opacity, transform' } : {}) as ViewStyle,
+  generating: { position: 'absolute', left: '50%', top: 12, transform: [{ translateX: '-50%' }], flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, backgroundColor: 'rgba(37, 35, 55, 0.78)', zIndex: 30 },
   aiTag: { position: 'absolute', left: 10, top: 10, flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: 'rgba(37, 35, 55, 0.72)' },
   hotspot: { position: 'absolute', marginLeft: -12, marginTop: -12, width: 24, height: 24, alignItems: 'center', justifyContent: 'center', zIndex: 20 },
   ring: { position: 'absolute', width: 18, height: 18, borderRadius: 9 },

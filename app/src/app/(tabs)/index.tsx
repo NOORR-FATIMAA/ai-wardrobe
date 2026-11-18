@@ -7,6 +7,7 @@ import { OutfitActions } from '@/components/OutfitActions';
 import { OutfitCard } from '@/components/OutfitCard';
 import { Text } from '@/components/Text';
 import { Body, Button, Card, FadeIn, Muted, Screen, SectionHeader, Skeleton, StatCard, Title, toneColors, type Tone } from '@/components/ui';
+import { AppTour } from '@/components/AppTour';
 import { DemoBanner } from '@/demo/DemoBanner';
 import { useAppData } from '@/lib/data';
 import { localDate } from '@/lib/dates';
@@ -66,6 +67,7 @@ export default function Home() {
   return (
     <Screen wide>
       <DemoBanner />
+      <AppTour />
       <FadeIn style={styles.header}>
         <View style={{ flex: 1, gap: space.xs }}>
           <Muted>

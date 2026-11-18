@@ -145,7 +145,9 @@ export function Button({
         styles.button,
         { backgroundColor: palette.bg, borderColor: palette.border, opacity: inactive ? 0.5 : 1 },
         variant === 'primary' && !inactive ? shadowFor(colors, Boolean(hovered)) : null,
-        hovered && !inactive && variant !== 'primary'
+        // Hover: a lighter surface for outline styles; the solid ink button just dims slightly.
+        hovered && !inactive && variant === 'ink' ? { opacity: 0.88 } : null,
+        hovered && !inactive && variant !== 'primary' && variant !== 'ink'
           ? { backgroundColor: variant === 'secondary' ? colors.surfaceAlt : colors.accentSoft }
           : null,
         { transform: [{ scale: pressed && !inactive ? 0.97 : 1 }] },
