@@ -434,3 +434,6 @@ verify_jwt = false
 
 [functions.inspiration]
 verify_jwt = false
+
+[functions.look-image]
+verify_jwt = false

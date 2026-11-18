@@ -53,5 +53,9 @@ export const api = {
 
   inspiration: (query: string) => invoke<{ photos: InspirationPhoto[] }>('inspiration', { query }),
 
+  /** AI model photo of a look (cached per look on the server; uses two AI calls when it is created). */
+  lookImage: (params: { item_ids: string[]; missing_items: { name: string; category: string }[] }) =>
+    invoke<{ path: string; url: string; cached: boolean }>('look-image', params),
+
   deleteAccount: () => invoke<{ deleted: boolean }>('delete-account', {}),
 };

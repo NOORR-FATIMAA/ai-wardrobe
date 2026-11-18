@@ -4,7 +4,7 @@ import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { OutfitActions, type OutfitState } from '@/components/OutfitActions';
 import { OutfitInspiration } from '@/components/OutfitInspiration';
 import { Text } from '@/components/Text';
-import { Button, ErrorText, FadeIn } from '@/components/ui';
+import { Button, ErrorText, FadeIn, Segmented } from '@/components/ui';
 import { useAppData } from '@/lib/data';
 import type { Look } from './types';
 import { fonts, radius, shadowFor, space, useTheme } from '@/lib/theme';
@@ -19,6 +19,14 @@ export interface ShoppingState {
   add: (look: Look, key: string) => Promise<void>;
 }
 
+/** The look's AI model photo: the image once made, and how to make it. */
+export interface ModelPhotoState {
+  url: string | null;
+  busy: boolean;
+  error: string | null;
+  create: () => Promise<void>;
+}
+
 /**
  * Stage 2: one look up close. Large figure with garment hotspots, the "In this look" panel (beside the
  * figure on wide screens, a bottom sheet below it on phones), the AI's reasoning, completeness, and the
@@ -31,6 +39,7 @@ export function OutfitDetail({
   onActionChange,
   requestText,
   shopping,
+  modelPhoto,
   onBack,
   onStep,
   onExplore,
@@ -41,6 +50,7 @@ export function OutfitDetail({
   onActionChange: (state: OutfitState) => void;
   requestText?: string;
   shopping: ShoppingState;
+  modelPhoto: ModelPhotoState;
   onBack: () => void;
   onStep: (delta: number) => void;
   onExplore: (key: string) => void;
@@ -49,6 +59,8 @@ export function OutfitDetail({
   const { width } = useWindowDimensions();
   const wide = width >= 1000; // the stylist column is capped; side-by-side only when there's room
   const [activeKey, setActiveKey] = useState<string | null>(null);
+  const [view, setView] = useState<'mannequin' | 'photo'>(modelPhoto.url ? 'photo' : 'mannequin');
+  const showPhoto = view === 'photo' && Boolean(modelPhoto.url);
 
   const select = (key: string) => {
     // First tap highlights a piece; tapping the same hotspot again explores it.
@@ -95,10 +107,34 @@ export function OutfitDetail({
 
       <View style={wide ? styles.split : { gap: space.lg }}>
         <View style={wide ? { flex: 1, maxWidth: 420 } : { width: '100%', maxWidth: 420, alignSelf: 'center' }}>
-          <LookFigure look={look} hotspots activeKey={activeKey} onSelect={select} style={{ boxShadow: colors.glow }} />
+          {modelPhoto.url ? (
+            <View style={{ marginBottom: space.md }}>
+              <Segmented
+                label="Figure"
+                value={showPhoto ? 'photo' : 'mannequin'}
+                onChange={setView}
+                options={[
+                  { value: 'mannequin', label: 'Mannequin', icon: 'body-outline' },
+                  { value: 'photo', label: 'Model photo', icon: 'image-outline' },
+                ]}
+              />
+            </View>
+          ) : null}
+          <LookFigure
+            look={look}
+            photoUrl={showPhoto ? modelPhoto.url : null}
+            hotspots
+            activeKey={activeKey}
+            onSelect={select}
+            style={{ boxShadow: colors.glow }}
+          />
           <Text style={{ color: colors.textMuted, fontSize: 12, textAlign: 'center', marginTop: space.sm }}>
             Tap a marker to highlight a piece; tap it again to explore it.
           </Text>
+          <ModelPhotoAction
+            photo={modelPhoto}
+            onCreated={() => setView('photo')}
+          />
         </View>
         {wide ? (
           <View style={{ flex: 1 }}>{info}</View>
@@ -115,6 +151,35 @@ export function OutfitDetail({
       <Suggestions look={look} shopping={shopping} onExplore={onExplore} />
       {look.inspirationQuery ? <OutfitInspiration query={look.inspirationQuery} /> : null}
     </FadeIn>
+  );
+}
+
+/** "Create model photo": an AI studio photo of a model wearing this look, made on request. */
+function ModelPhotoAction({ photo, onCreated }: { photo: ModelPhotoState; onCreated: () => void }) {
+  const { colors } = useTheme();
+  const { demoActive } = useAppData();
+  if (photo.url) return null;
+  if (demoActive) {
+    return (
+      <Text style={{ color: colors.textMuted, fontSize: 12, textAlign: 'center', marginTop: space.sm }}>
+        AI model photos need a real account, so they aren&apos;t available in demo mode.
+      </Text>
+    );
+  }
+  return (
+    <View style={{ gap: space.xs, marginTop: space.md }}>
+      <Button
+        variant="soft"
+        icon="sparkles-outline"
+        title={photo.busy ? 'Creating model photo…' : 'Create model photo'}
+        loading={photo.busy}
+        onPress={() => void photo.create().then(onCreated)}
+      />
+      <Text style={{ color: colors.textMuted, fontSize: 12, textAlign: 'center' }}>
+        An AI picture of a model wearing this look, made from your clothing photos. Uses 2 of today&apos;s AI requests; a style preview, not an exact fit.
+      </Text>
+      <ErrorText message={photo.error || null} />
+    </View>
   );
 }
 

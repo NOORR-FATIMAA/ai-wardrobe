@@ -6,7 +6,7 @@ import type { Look } from './types';
 import { radius, space, useTheme } from '@/lib/theme';
 import { OutfitPreview } from './OutfitPreview';
 
-const GAP = space.lg;
+const GAP = space.md;
 const WEB = Platform.OS === 'web';
 
 /**
@@ -21,8 +21,11 @@ export function OutfitRail({
   onIndexChange,
   onOpen,
   keyboard = true,
+  photoUrls = {},
 }: {
   looks: Look[];
+  /** AI model photos by look index, shown instead of the mannequin. */
+  photoUrls?: Record<number, string>;
   /** Width available to the rail. */
   width: number;
   initialIndex?: number;
@@ -31,7 +34,8 @@ export function OutfitRail({
   keyboard?: boolean;
 }) {
   const { colors, reduceMotion } = useTheme();
-  const cardWidth = Math.min(340, Math.max(240, width * 0.72));
+  // Standing figures, narrower than cards, so the neighbouring looks stay in view like a lineup.
+  const cardWidth = Math.round(Math.min(230, Math.max(150, width * 0.44)));
   const interval = cardWidth + GAP;
   const sidePad = Math.max(0, (width - cardWidth) / 2);
   const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
@@ -150,17 +154,17 @@ export function OutfitRail({
       >
         {looks.map((look, i) => {
           const range = [(i - 1) * interval, i * interval, (i + 1) * interval];
-          const scale = reduceMotion ? 1 : scrollX.interpolate({ inputRange: range, outputRange: [0.88, 1, 0.88], extrapolate: 'clamp' });
-          const opacity = scrollX.interpolate({ inputRange: range, outputRange: [0.5, 1, 0.5], extrapolate: 'clamp' });
+          const scale = reduceMotion ? 1 : scrollX.interpolate({ inputRange: range, outputRange: [0.8, 1, 0.8], extrapolate: 'clamp' });
+          const opacity = scrollX.interpolate({ inputRange: range, outputRange: [0.45, 1, 0.45], extrapolate: 'clamp' });
           return (
             <Animated.View
               key={look.index}
               style={[
                 { opacity, transform: [{ scale }] },
-                WEB ? ({ scrollSnapAlign: 'center', filter: i === index || reduceMotion ? 'none' : 'blur(1px)', transition: 'filter 250ms' } as object) : null,
+                WEB ? ({ scrollSnapAlign: 'center', filter: i === index || reduceMotion ? 'none' : 'blur(2px)', transition: 'filter 250ms' } as object) : null,
               ]}
             >
-              <OutfitPreview look={look} width={cardWidth} onOpen={() => (i === index ? onOpen(look) : goTo(i))} />
+              <OutfitPreview look={look} width={cardWidth} photoUrl={photoUrls[look.index]} focused={i === index} onOpen={() => (i === index ? onOpen(look) : goTo(i))} />
             </Animated.View>
           );
         })}

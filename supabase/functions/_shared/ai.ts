@@ -156,6 +156,68 @@ export async function askModel<S extends z.ZodType>(req: StructuredRequest<S>): 
   return parsed.data;
 }
 
+// Image generation ("Nano Banana" family). Default per Google's image generation docs (Nov 2026):
+// gemini-nano-banana-2.1 is the recommended model for generation and editing and accepts up to 10
+// object reference images; about US$0.034 per 1K image on the paid tier. These image models have NO
+// free tier, so a project without billing gets an error, which is reported as "needs billing".
+// Override with `supabase secrets set GEMINI_IMAGE_MODEL=...`.
+const IMAGE_MODEL = Deno.env.get("GEMINI_IMAGE_MODEL") || "gemini-nano-banana-2.1";
+
+export interface GeneratedImage {
+  base64: string;
+  mimeType: "image/png" | "image/jpeg" | "image/webp";
+}
+
+/** Generates one image from text and reference images. Errors are user-readable HttpErrors. */
+export async function generateImage(req: { content: Part[]; aspectRatio: string; imageSize?: "1K" | "2K" }): Promise<GeneratedImage> {
+  if (!client) {
+    if (API_KEY_MALFORMED) console.error("GEMINI_API_KEY contains spaces, control or non-ASCII characters; set the secret again.");
+    throw new HttpError(503, "AI features are not configured on the server yet.");
+  }
+  let response;
+  const started = Date.now();
+  const elapsed = () => `after ${Date.now() - started} ms`;
+  try {
+    response = await client.models.generateContent({
+      model: IMAGE_MODEL,
+      contents: [{ role: "user", parts: req.content }],
+      config: {
+        responseModalities: ["IMAGE"],
+        imageConfig: { aspectRatio: req.aspectRatio, imageSize: req.imageSize ?? "1K" },
+      },
+    });
+  } catch (error) {
+    if (error instanceof ApiError) {
+      console.error(`Gemini image API error ${error.status} ${elapsed()}: ${error.message.slice(0, 300)}`);
+      // No free tier for image models: without billing the API answers with a quota or permission error.
+      if (error.status === 429 && /limit:\s*0|free.?tier|billing/i.test(error.message)) {
+        throw new HttpError(402, "Model photos need billing enabled on the Gemini API project.");
+      }
+      if (error.status === 403 || error.status === 400 && /billing/i.test(error.message)) {
+        throw new HttpError(402, "Model photos need billing enabled on the Gemini API project.");
+      }
+      if (error.status === 429) throw new HttpError(429, "The image service is busy. Please try again in a minute.");
+      if (error.status === 404) throw new HttpError(503, "The image model is not available on this project.");
+      throw new HttpError(502, "The image service is unavailable right now.");
+    }
+    const err = error as Error;
+    const detail = `${err.name}: ${String(err.message).slice(0, 300)}`;
+    console.error(`Gemini image request failed ${elapsed()}: ${API_KEY ? detail.split(API_KEY).join("[redacted]") : detail}`);
+    throw new HttpError(502, "The image service is unavailable right now.");
+  }
+
+  const candidate = response.candidates?.[0];
+  if (response.promptFeedback?.blockReason || (candidate?.finishReason && DECLINED.has(candidate.finishReason))) {
+    throw new HttpError(422, "The AI could not create a picture of this look.");
+  }
+  const image = candidate?.content?.parts?.find((p) => p.inlineData?.data && /^image\/(png|jpeg|webp)$/.test(p.inlineData.mimeType ?? ""));
+  if (!image?.inlineData?.data) {
+    console.error(`Gemini image response had no image ${elapsed()}: finish reason ${candidate?.finishReason ?? "none"}`);
+    throw new HttpError(502, "The AI did not return a picture. Please try again.");
+  }
+  return { base64: image.inlineData.data, mimeType: image.inlineData.mimeType as GeneratedImage["mimeType"] };
+}
+
 export function imagePart(base64: string, mimeType: "image/jpeg" | "image/png" | "image/webp"): Part {
   return { inlineData: { mimeType, data: base64 } };
 }

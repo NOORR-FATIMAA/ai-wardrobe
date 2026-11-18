@@ -102,7 +102,7 @@ export function Eyebrow({ children, style }: { children: ReactNode; style?: Text
   return <Text style={[styles.eyebrow, { color: colors.accent }, style]}>{children}</Text>;
 }
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'soft';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'soft' | 'ink';
 
 export function Button({
   title,
@@ -130,6 +130,8 @@ export function Button({
     ghost: { bg: 'transparent', fg: colors.accent, border: 'transparent' },
     danger: { bg: 'transparent', fg: colors.danger, border: colors.danger },
     soft: { bg: colors.accentSoft, fg: colors.accent, border: colors.accentSoft },
+    // Editorial black pill (white in dark mode): the main action on Shop the look.
+    ink: { bg: colors.text, fg: colors.background, border: colors.text },
   }[variant];
   const inactive = disabled || loading;
   return (

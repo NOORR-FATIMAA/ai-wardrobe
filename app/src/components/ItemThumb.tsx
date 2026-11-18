@@ -44,13 +44,13 @@ export function ItemThumb({
       {uri ? (
         <Image
           source={{ uri }}
-          style={{ flex: 1, margin: isCutout(item.image_path) ? 6 : 0 }}
+          style={{ flex: 1, margin: !bare && isCutout(item.image_path) ? 6 : 0 }}
           contentFit={isCutout(item.image_path) ? 'contain' : fit}
           transition={150}
           recyclingKey={item.id}
         />
       ) : illustration ? (
-        <Image source={illustration} style={{ flex: 1, margin: 8 }} contentFit="contain" recyclingKey={item.id} />
+        <Image source={illustration} style={{ flex: 1, margin: bare ? 0 : 8 }} contentFit="contain" recyclingKey={item.id} />
       ) : (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Ionicons name={icon} size={28} color={colors.textMuted} />

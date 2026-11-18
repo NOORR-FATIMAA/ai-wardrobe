@@ -1,11 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Text';
-import type { Look } from './types';
-import { fonts, radius, shadowFor, space, useTheme } from '@/lib/theme';
+import { fonts, radius, space, useTheme } from '@/lib/theme';
 import { LookFigure } from './LookFigure';
+import type { Look } from './types';
 
-/** "Owns everything" or "+2 to shop": whether the look needs anything the user doesn't own. */
+/** "All from your wardrobe" or "2 owned · +1 to shop": whether the look needs anything not owned. */
 export function OwnershipBadge({ look }: { look: Look }) {
   const { colors } = useTheme();
   const shop = look.suggestedCount > 0;
@@ -19,42 +19,47 @@ export function OwnershipBadge({ look }: { look: Look }) {
   );
 }
 
-/** One look in the gallery rail: number, full-body figure, title, occasion and a one-line story. */
-export function OutfitPreview({ look, width, onOpen }: { look: Look; width: number; onOpen: () => void }) {
+/**
+ * One look standing in the lineup: the full-body figure (mannequin, or its AI model photo) on the
+ * shared studio floor, with its number and name underneath.
+ */
+export function OutfitPreview({
+  look,
+  width,
+  photoUrl,
+  focused,
+  onOpen,
+}: {
+  look: Look;
+  width: number;
+  photoUrl?: string | null;
+  focused: boolean;
+  onOpen: () => void;
+}) {
   const { colors } = useTheme();
   return (
     <Pressable
       onPress={onOpen}
       accessibilityRole="button"
-      accessibilityLabel={`Look ${look.number}, ${look.title}. ${look.occasion}. Open the look.`}
-      style={({ hovered }) => [styles.card, { width, backgroundColor: colors.surface }, shadowFor(colors, Boolean(hovered))]}
+      accessibilityLabel={`Look ${look.number}, ${look.title}. ${look.occasion}. ${focused ? 'Open the look.' : 'Show this look.'}`}
+      style={{ width, gap: space.sm }}
     >
-      <View style={styles.head}>
+      <LookFigure look={look} photoUrl={photoUrl} style={{ borderRadius: radius.lg }} />
+      <View style={{ gap: 2, alignItems: 'center' }}>
         <Text style={[styles.number, { color: colors.accent }]}>LOOK {look.number}</Text>
-        <Text numberOfLines={1} style={{ color: colors.textMuted, fontSize: 12, fontWeight: '600', flexShrink: 1 }}>
-          {look.occasion}
-        </Text>
-      </View>
-      <LookFigure look={look} aspect={3 / 4} />
-      <View style={{ gap: 6 }}>
-        <Text numberOfLines={2} style={[styles.title, { color: colors.text }]}>
+        <Text numberOfLines={1} style={[styles.title, { color: colors.text }]}>
           {look.title}
         </Text>
-        {look.summary ? (
-          <Text numberOfLines={2} style={{ color: colors.textMuted, fontSize: 14, lineHeight: 20 }}>
-            {look.summary}
-          </Text>
-        ) : null}
-        <OwnershipBadge look={look} />
+        <Text numberOfLines={1} style={{ color: colors.textMuted, fontSize: 13 }}>
+          {look.occasion}
+        </Text>
       </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: radius.lg + 4, padding: space.md, gap: space.md },
-  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.sm, paddingHorizontal: 4 },
-  number: { fontFamily: fonts.display, fontSize: 13, letterSpacing: 1.6 },
-  title: { fontFamily: fonts.display, fontSize: 22, lineHeight: 26, letterSpacing: -0.4 },
+  number: { fontFamily: fonts.display, fontSize: 12, letterSpacing: 1.6 },
+  title: { fontFamily: fonts.displaySemibold, fontSize: 17, letterSpacing: -0.2, textAlign: 'center' },
   badge: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill },
 });

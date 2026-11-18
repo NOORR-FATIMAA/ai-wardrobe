@@ -132,7 +132,7 @@ export default function Stylist() {
   }
 
   return (
-    <Screen>
+    <Screen wide={Boolean(result && !editing)}>
       <DemoBanner />
       <View style={styles.header}>
         <View style={{ flex: 1, gap: space.xs }}>
