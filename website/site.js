@@ -76,6 +76,22 @@
     reveal.forEach(function (el) { io.observe(el); });
   }
 
+  // Opening splash: keep it at least ~1 s so the animation reads, then fade it out once the page has
+  // loaded, and remember it for this browser session.
+  var splash = document.querySelector('.site-splash');
+  if (splash && root.classList.contains('show-splash')) {
+    var shownAt = Date.now();
+    var hide = function () {
+      setTimeout(function () {
+        splash.classList.add('out');
+        try { sessionStorage.setItem('wardrobe.splash', '1'); } catch (e) {}
+        setTimeout(function () { root.classList.remove('show-splash'); }, 500);
+      }, Math.max(0, 1100 - (Date.now() - shownAt)));
+    };
+    if (document.readyState === 'complete') hide();
+    else window.addEventListener('load', hide);
+  }
+
   var year = document.getElementById('year');
   if (year) year.textContent = String(new Date().getFullYear());
 })();

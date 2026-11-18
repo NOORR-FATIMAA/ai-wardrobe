@@ -1,7 +1,8 @@
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
+import { Splash } from '@/components/Splash';
 import { Text } from '@/components/Text';
 import { Button } from '@/components/ui';
 import { GUEST_MODE } from '@/lib/guest';
@@ -15,11 +16,7 @@ function RootNavigator() {
   const [fontsLoaded, fontError] = useFonts(fontFiles);
 
   if (loading || (!fontsLoaded && !fontError)) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
-        <ActivityIndicator color={colors.accent} />
-      </View>
-    );
+    return <Splash />;
   }
 
   // Guest mode: the guest account could not be created, so explain instead of showing a sign-in form.

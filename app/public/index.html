@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="theme-color" content="#A78BFA" />
+    <title>Wardrobe AI</title>
+    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      /* These styles make the body full-height */
+      html,
+      body {
+        height: 100%;
+      }
+      /* These styles disable body scrolling if you are using <ScrollView> */
+      body {
+        overflow: hidden;
+        margin: 0;
+        background: #a78bfa;
+      }
+      /* These styles make the root element full-height */
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+    <!--
+      Splash shown the moment the page opens, before the app's JavaScript has loaded. It sits inside
+      #root, so React replaces it on start-up with the app's own Splash (components/Splash.tsx), which
+      looks the same: lavender background, the brand mark popping in and breathing, three dots.
+    -->
+    <style id="pre-splash">
+      .pre-splash { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; overflow: hidden; background: #a78bfa; }
+      .pre-splash .blob { position: absolute; border-radius: 50%; opacity: 0.5; }
+      .pre-splash .b1 { width: 220px; height: 220px; top: -60px; right: -60px; background: #ff8fa3; }
+      .pre-splash .b2 { width: 160px; height: 160px; bottom: -40px; left: -40px; background: #f5d878; }
+      .pre-splash .mark { width: 92px; height: 92px; animation: pop 600ms cubic-bezier(0.2, 1.4, 0.4, 1) both, breathe 1.8s ease-in-out 600ms infinite; }
+      .pre-splash .dots { display: flex; gap: 8px; }
+      .pre-splash .dots i { width: 8px; height: 8px; border-radius: 50%; background: #1d1a2c; opacity: 0.3; animation: dot 1.2s ease-in-out infinite; }
+      .pre-splash .dots i:nth-child(2) { animation-delay: 160ms; }
+      .pre-splash .dots i:nth-child(3) { animation-delay: 320ms; }
+      @keyframes pop { from { transform: scale(0.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+      @keyframes breathe { 50% { transform: scale(1.06); } }
+      @keyframes dot { 30% { opacity: 1; } 60% { opacity: 0.3; } }
+      @media (prefers-reduced-motion: reduce) { .pre-splash .mark, .pre-splash .dots i { animation: none; } }
+    </style>
+  </head>
+
+  <body>
+    <noscript> You need to enable JavaScript to run this app. </noscript>
+    <div id="root">
+      <div class="pre-splash" role="img" aria-label="Wardrobe AI is loading">
+        <span class="blob b1"></span><span class="blob b2"></span>
+        <!-- The brand mark, inverted (ink tile, lavender sparkles), as on the app's splash. -->
+        <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+          <rect x="2" y="6" width="56" height="56" rx="17" fill="#1D1A2C" />
+          <path d="M27 17 C28.4 25.6 31.4 28.6 40 30 C31.4 31.4 28.4 34.4 27 43 C25.6 34.4 22.6 31.4 14 30 C22.6 28.6 25.6 25.6 27 17 Z" fill="#A78BFA" />
+          <path d="M42 37 C42.8 41.6 44.4 43.2 49 44 C44.4 44.8 42.8 46.4 42 51 C41.2 46.4 39.6 44.8 35 44 C39.6 43.2 41.2 41.6 42 37 Z" fill="#A78BFA" />
+          <circle cx="55" cy="9" r="7" fill="#FF8FA3" stroke="#A78BFA" stroke-width="2.5" />
+        </svg>
+        <div class="dots"><i></i><i></i><i></i></div>
+      </div>
+    </div>
+  </body>
+</html>

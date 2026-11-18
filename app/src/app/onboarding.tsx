@@ -1,8 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Image } from 'expo-image';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { DIRECTIONS, draftFromProfile, PreferencesForm, type PreferencesSection } from '@/components/PreferencesForm';
+import { IntroScreen } from '@/components/IntroScreen';
 import { Text } from '@/components/Text';
+import { DEMO_IMAGES } from '@/demo/demoImages';
 import { Body, Button, Card, ErrorText, Muted, Screen, Title, Toggle } from '@/components/ui';
 import { useAppData } from '@/lib/data';
 import { fonts, radius, space, useTheme } from '@/lib/theme';
@@ -19,6 +22,8 @@ const STEPS: { title: string; subtitle: string; section?: PreferencesSection; ki
 export default function Onboarding() {
   const { colors } = useTheme();
   const { profile, updateProfile } = useAppData();
+  // New users first see the animated intro; "Get started" opens the questions.
+  const [intro, setIntro] = useState(true);
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState(() => draftFromProfile(profile));
   const [aiConsent, setAiConsent] = useState(profile?.consent_ai_processing ?? false);
@@ -45,6 +50,8 @@ export default function Onboarding() {
       setBusy(false);
     }
   }
+
+  if (intro) return <IntroScreen onStart={() => setIntro(false)} />;
 
   return (
     <Screen edges={['top', 'bottom']}>
@@ -78,9 +85,23 @@ export default function Onboarding() {
                   },
                 ]}
               >
-                <View style={[styles.dressIcon, { backgroundColor: selected ? colors.onPrimary : colors.accentSoft }]}>
-                  <Ionicons name={o.icon} size={24} color={selected ? colors.primary : colors.accent} />
-                </View>
+                {o.pieces.length ? (
+                  // A small collage of matching pieces from the app's illustrations.
+                  <View style={[styles.collage, { backgroundColor: colors.photoTile }]}>
+                    {o.pieces.map((id, i) => (
+                      <Image
+                        key={id}
+                        source={DEMO_IMAGES[`demo-item-${id}`]}
+                        contentFit="contain"
+                        style={[styles.collagePiece, { left: 4 + i * 18, top: i % 2 ? 14 : 2, zIndex: 3 - i }]}
+                      />
+                    ))}
+                  </View>
+                ) : (
+                  <View style={[styles.collage, { backgroundColor: selected ? colors.onPrimary : colors.accentSoft, alignItems: 'center', justifyContent: 'center' }]}>
+                    <Ionicons name={o.icon} size={28} color={selected ? colors.primary : colors.accent} />
+                  </View>
+                )}
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontFamily: fonts.displaySemibold, fontSize: 19, color: selected ? colors.onPrimary : colors.text }}>{o.label}</Text>
                   <Text style={{ color: selected ? colors.onPrimary : colors.textMuted, fontSize: 14 }}>{o.hint}</Text>
@@ -128,16 +149,17 @@ export default function Onboarding() {
   );
 }
 
-const DRESS_OPTIONS: { label: keyof typeof DIRECTIONS; hint: string; icon: React.ComponentProps<typeof Ionicons>['name'] }[] = [
-  { label: 'Womenswear', hint: 'Dresses, tops, skirts, shalwar kameez, sarees…', icon: 'woman-outline' },
-  { label: 'Menswear', hint: 'Shirts, trousers, kurtas, sherwanis, suits…', icon: 'man-outline' },
-  { label: 'Both', hint: 'A mix of menswear and womenswear', icon: 'people-outline' },
-  { label: 'No preference', hint: "Style me without either; I'll decide", icon: 'sparkles-outline' },
+const DRESS_OPTIONS: { label: keyof typeof DIRECTIONS; hint: string; icon: React.ComponentProps<typeof Ionicons>['name']; pieces: string[] }[] = [
+  { label: 'Womenswear', hint: 'Dresses, tops, skirts, shalwar kameez, sarees…', icon: 'woman-outline', pieces: ['08', '09', '16'] },
+  { label: 'Menswear', hint: 'Shirts, trousers, kurtas, sherwanis, suits…', icon: 'man-outline', pieces: ['01', '05', '12'] },
+  { label: 'Both', hint: 'A mix of menswear and womenswear', icon: 'people-outline', pieces: ['04', '06', '11'] },
+  { label: 'No preference', hint: "Style me without either; I'll decide", icon: 'sparkles-outline', pieces: [] },
 ];
 
 const styles = StyleSheet.create({
   dressOption: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg, borderRadius: radius.lg, borderWidth: 1.5 },
-  dressIcon: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  collage: { width: 84, height: 72, borderRadius: 16, overflow: 'hidden' },
+  collagePiece: { position: 'absolute', width: 48, height: 56 },
 });
 
 function PrivacyPoint({ icon, text }: { icon: React.ComponentProps<typeof Ionicons>['name']; text: string }) {

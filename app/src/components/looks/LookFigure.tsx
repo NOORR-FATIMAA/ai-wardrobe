@@ -78,10 +78,12 @@ export function dressMannequin(items: LookItem[], build: Build): { item: LookIte
     out.push({ item, box });
   };
   // The figure is 1 wide and about 2.08 tall; the floor line is at about 1.9.
-  put(outer, square(0.5, 0.15, 0.96 * s, 2));
+  // A one-piece is drawn larger (and its outer layer with it), so with no visible body there is no
+  // big empty gap between a short dress and the shoes on the floor.
+  put(outer, onepiece ? square(0.5, 0.1, 1.15 * s, 2) : square(0.5, 0.15, 0.96 * s, 2));
   // Under an open outer layer the top sits a little smaller, like a shirt under a jacket.
   put(top, square(0.5, 0.2, (outer ? 0.7 : 0.8) * s, 3));
-  put(onepiece, square(0.5, 0.18, 1.0 * s, 3));
+  put(onepiece, square(0.5, 0.15, 1.25 * s, 3));
   put(bottom, square(0.5, 0.72, 1.05 * s, 1));
   put(feet, square(0.5, 1.5, 0.56, 4));
   // A belt goes round the waist, over the top of the bottom (or a one-piece).

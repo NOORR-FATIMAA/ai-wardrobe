@@ -17,6 +17,8 @@
       if (t !== 'light' && t !== 'dark') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       document.documentElement.dataset.theme = t;
       document.documentElement.classList.remove('no-js');
+      // Splash: once per browser session (not on every page visit).
+      try { if (!sessionStorage.getItem('wardrobe.splash')) document.documentElement.classList.add('show-splash'); } catch (e) {}
     })();
   </script>
   <link rel="icon" href="assets/favicon.png">
@@ -26,6 +28,17 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body id="top">
+  <!-- Opening splash (see .site-splash in styles.css and site.js): the brand mark pops in, then fades. -->
+  <div class="site-splash" aria-hidden="true">
+    <span class="blob b1"></span><span class="blob b2"></span>
+    <svg class="mark" viewBox="0 0 64 64">
+      <rect x="2" y="6" width="56" height="56" rx="17" fill="#1D1A2C" />
+      <path d="M27 17 C28.4 25.6 31.4 28.6 40 30 C31.4 31.4 28.4 34.4 27 43 C25.6 34.4 22.6 31.4 14 30 C22.6 28.6 25.6 25.6 27 17 Z" fill="#A78BFA" />
+      <path d="M42 37 C42.8 41.6 44.4 43.2 49 44 C44.4 44.8 42.8 46.4 42 51 C41.2 46.4 39.6 44.8 35 44 C39.6 43.2 41.2 41.6 42 37 Z" fill="#A78BFA" />
+      <circle cx="55" cy="9" r="7" fill="#FF8FA3" stroke="#A78BFA" stroke-width="2.5" />
+    </svg>
+    <span class="word">Wardrobe AI</span>
+  </div>
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="wrap">
